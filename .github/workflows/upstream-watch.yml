@@ -33,7 +33,7 @@ jobs:
           else
             gh issue create --title "$title" --body-file upstream-report.md
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: upstream-report
           path: upstream-report.md
