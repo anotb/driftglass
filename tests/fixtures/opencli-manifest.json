@@ -1,0 +1,11 @@
+[
+  {
+    "site": "hackernews",
+    "name": "top",
+    "access": "read",
+    "description": "Read Hacker News top stories",
+    "args": [
+      { "name": "limit", "type": "int", "required": false, "positional": false }
+    ]
+  }
+]

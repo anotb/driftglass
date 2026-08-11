@@ -1,0 +1,95 @@
+{
+  "$schema": "../schema.json",
+  "driftglassLens": "1",
+  "id": "ai-infrastructure",
+  "name": "AI Infrastructure & Power",
+  "description": "Data centers, chips, power systems, utilities, transmission, and the infrastructure constraints behind frontier AI.",
+  "author": "Driftglass contributors",
+  "category": "Infrastructure",
+  "icon": "⌁",
+  "interestTerms": [
+    "data center",
+    "AI infrastructure",
+    "power grid",
+    "utility",
+    "transmission",
+    "interconnection",
+    "GPU",
+    "NVIDIA"
+  ],
+  "sources": [
+    {
+      "id": "lens-ai-infra-hn",
+      "name": "Hacker News — AI infrastructure",
+      "kind": "hackernews",
+      "config": {
+        "feed": "best",
+        "limit": 70,
+        "minScore": 12,
+        "watchTerms": [
+          "data center",
+          "power grid",
+          "electricity",
+          "GPU",
+          "NVIDIA",
+          "transmission"
+        ]
+      },
+      "scheduleMinutes": 90,
+      "weight": 1.05
+    },
+    {
+      "id": "lens-ai-infra-openalex",
+      "name": "OpenAlex — AI infrastructure & energy (optional key)",
+      "kind": "openalex",
+      "config": {
+        "query": "artificial intelligence data center energy power grid GPU cluster",
+        "limit": 35,
+        "sort": "publication_date:desc"
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.9
+    },
+    {
+      "id": "lens-ai-infra-github",
+      "name": "Infrastructure tooling activity",
+      "kind": "github_activity",
+      "config": {
+        "repos": [
+          "cloudflare/workers-sdk",
+          "duckdb/duckdb",
+          "OSGeo/gdal",
+          "qgis/QGIS"
+        ],
+        "perRepo": 30,
+        "includeTypes": [
+          "PullRequestEvent",
+          "IssuesEvent",
+          "ReleaseEvent"
+        ]
+      },
+      "scheduleMinutes": 240,
+      "weight": 0.8
+    }
+  ],
+  "missions": [
+    {
+      "id": "mission-ai-infra-bottlenecks",
+      "name": "AI infrastructure bottlenecks",
+      "question": "Which power, grid, chip, siting, or financing constraint is becoming more binding for AI infrastructure?",
+      "terms": [
+        "data center",
+        "power",
+        "utility",
+        "transmission",
+        "interconnection",
+        "GPU",
+        "large load",
+        "electricity rate"
+      ],
+      "status": "active",
+      "priority": 1.7,
+      "cadenceMinutes": 720
+    }
+  ]
+}

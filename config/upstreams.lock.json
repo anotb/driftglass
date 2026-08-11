@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-08-07",
+  "upstreams": [
+    {
+      "name": "OpenCLI",
+      "repository": "jackwener/OpenCLI",
+      "role": "Primary live browser-backed Relay adapter",
+      "version": "1.8.6",
+      "versionFile": "package.json",
+      "versionPattern": "\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\""
+    },
+    {
+      "name": "Agent-Reach",
+      "repository": "Panniantong/Agent-Reach",
+      "role": "Optional installer and diagnostics router",
+      "version": "1.5.0",
+      "versionFile": "pyproject.toml",
+      "versionPattern": "version\\s*=\\s*\\\"([^\\\"]+)\\\""
+    },
+    {
+      "name": "twscrape",
+      "repository": "vladkens/twscrape",
+      "role": "Optional cookie-backed X adapter alternative",
+      "version": "0.20.0",
+      "versionFile": "pyproject.toml",
+      "versionPattern": "version\\s*=\\s*\\\"([^\\\"]+)\\\""
+    },
+    {
+      "name": "Cloudflare Computer",
+      "repository": "cloudflare/computer",
+      "role": "Mission workspace filesystem and isolate execution backends",
+      "version": "0.1.1",
+      "versionFile": "packages/computer/package.json",
+      "versionPattern": "\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\""
+    },
+    {
+      "name": "Cloudflare Agents SDK",
+      "repository": "cloudflare/agents",
+      "role": "Stateless MCP transport, Workflows integration, and agent observability",
+      "version": "0.20.1",
+      "versionFile": "packages/agents/package.json",
+      "versionPattern": "\\\"version\\\"\\s*:\\s*\\\"([^\\\"]+)\\\""
+    }
+  ]
+}

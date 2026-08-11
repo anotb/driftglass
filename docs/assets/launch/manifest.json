@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "2",
+  "buildVersion": "0.9.0-launch.4",
+  "status": "complete",
+  "captureFingerprint": "e77a27ac8155311ec63e8f798fb6b4e2ea00cf8265acc9175f842eb97f314c11",
+  "modelInsert": {
+    "sha256": "852b9b8b473415015d6b2b2b36569235f5842a5447022d49a8941ba8b8b6ceeb",
+    "approvalDigest": "7c44a59f73397c0ac60042857495ae3cf88cfbe503f78234231411988d58d077",
+    "reviewedFrameCount": 360,
+    "conversationOnly": true,
+    "noBrowserChrome": true,
+    "noSidebar": true,
+    "noAccountUi": true,
+    "noOtherChats": true
+  },
+  "illustrative": {
+    "classification": "Illustrative example · public sources",
+    "publicSourcesAsOf": "2026-07-07",
+    "sourceUrls": [
+      "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary",
+      "https://www.eia.gov/todayinenergy/detail.php?id=67484",
+      "https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/",
+      "https://www.nature.com/articles/s41586-026-10644-y",
+      "https://www.nature.com/articles/s41586-026-10652-y"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "hormuz-share.json",
+      "mediaType": "application/json",
+      "bytes": 5658,
+      "sha256": "128eacb8d2ac660604356bf9a35b8237dd0c4910ee5b7b717754bdf331a7ee94"
+    },
+    {
+      "path": "hormuz-analysis.html",
+      "mediaType": "text/html",
+      "bytes": 10593,
+      "sha256": "8e51d2ed136a9f5a02208fb7a25a432b366007cd996a2508ad9e5f2c78378667"
+    },
+    {
+      "path": "hormuz-analysis.zip",
+      "mediaType": "application/zip",
+      "bytes": 29834,
+      "sha256": "f7b0a746fc47db6365ae450c548e036b29a22d511803918ad350a9cf7fdf0fc6"
+    },
+    {
+      "path": "01-today.png",
+      "mediaType": "image/png",
+      "bytes": 116866,
+      "sha256": "c84168d6796f82d6c644f60ec1991c533e0445795214f1b7d7a27b48f087dad4",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "02-mission-computer.png",
+      "mediaType": "image/png",
+      "bytes": 204747,
+      "sha256": "7badd5acc9cefbe46e160b421c750460f7a9956d5b7eeb7a41597dda5732bdf5",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "03-final-answer.png",
+      "mediaType": "image/png",
+      "bytes": 165414,
+      "sha256": "a187b102295b8e6982efb4a031bba186b426e2ed231ff8c333494aae79169602",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "04-public-card.png",
+      "mediaType": "image/png",
+      "bytes": 192276,
+      "sha256": "a22c2c9201e1d54d9e977d50955a88eeb97d4a691710b08801d2a7578e6c47d4",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "architecture.svg",
+      "mediaType": "image/svg+xml",
+      "bytes": 6762,
+      "sha256": "2ba0665441c72fa549e8027f8122740ba86151388bc747ecfdd1bce12bdd6dc5",
+      "width": 1600,
+      "height": 1000
+    },
+    {
+      "path": "walkthrough.mp4",
+      "mediaType": "video/mp4",
+      "bytes": 2776938,
+      "sha256": "2394afa76abace7173bb36d0a4cc82d45a282b01c159761656515d0f04707eba",
+      "width": 1440,
+      "height": 900,
+      "durationSeconds": 32,
+      "frameRate": 30,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "audioCodec": "aac",
+      "audioProfile": "LC",
+      "audioSampleRate": 48000,
+      "audioChannels": 2,
+      "audioTitle": "Open Questions",
+      "audioSource": "original",
+      "audioLicense": "Apache-2.0"
+    }
+  ]
+}

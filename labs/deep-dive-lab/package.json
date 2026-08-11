@@ -1,0 +1,36 @@
+{
+  "name": "@driftglass/computer-lab",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional dual-isolate Cloudflare Computer workspace for Driftglass evidence cases",
+  "scripts": {
+    "dev": "wrangler dev --remote",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run typecheck && wrangler deploy",
+    "typecheck:offline": "tsc -p tsconfig.offline.json --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/computer": "0.1.1",
+    "@modelcontextprotocol/server": "2.0.0",
+    "agents": "0.20.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "5.20260807.2",
+    "typescript": "5.8.3",
+    "wrangler": "4.120.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260801.1": true,
+    "@mongodb-js/zstd": false,
+    "core-js-pure": false,
+    "fsevents": false,
+    "node-liblzma": false
+  },
+  "license": "Apache-2.0"
+}

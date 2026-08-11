@@ -1,0 +1,1224 @@
+{
+  "schemaVersion": 3,
+  "contentDigest": "sha256:2b7e767f03a5510510af3e2a1e66cd28f4df89e53479289dec6ec34521d3e817",
+  "packs": [
+    {
+      "id": "ai-infrastructure-power",
+      "version": "3.0.1",
+      "name": "AI Infrastructure & Power",
+      "description": "A standing intelligence module for data centers, chips, utilities, grid constraints, transmission, interconnection, and AI-infrastructure financing.",
+      "author": "Driftglass contributors",
+      "category": "Infrastructure",
+      "icon": "⌁",
+      "featured": true,
+      "requiresCompanion": true,
+      "sourceCount": 5,
+      "cloudSourceCount": 4,
+      "companionSourceCount": 1,
+      "cloudCoverage": 0.8,
+      "missionCount": 1,
+      "memorySeedCount": 8,
+      "routineCount": 2,
+      "budgetProfile": "free",
+      "installUrl": "/intelligence-packs/ai-infrastructure-power.json",
+      "pack": {
+        "$schema": "../schema.json",
+        "driftglassPack": "3",
+        "id": "ai-infrastructure-power",
+        "version": "3.0.1",
+        "name": "AI Infrastructure & Power",
+        "description": "A standing intelligence module for data centers, chips, utilities, grid constraints, transmission, interconnection, and AI-infrastructure financing.",
+        "author": "Driftglass contributors",
+        "category": "Infrastructure",
+        "icon": "⌁",
+        "featured": true,
+        "cloudSources": [
+          {
+            "id": "ai-infra-hn",
+            "name": "Hacker News — AI infrastructure",
+            "kind": "hackernews",
+            "config": {
+              "feed": "best",
+              "limit": 70,
+              "minScore": 12,
+              "watchTerms": [
+                "data center",
+                "power grid",
+                "electricity",
+                "GPU",
+                "NVIDIA",
+                "transmission",
+                "utility"
+              ],
+              "evidenceRole": "practitioner",
+              "estimatedItemsPerRun": 25
+            },
+            "scheduleMinutes": 120,
+            "weight": 1
+          },
+          {
+            "id": "ai-infra-openalex",
+            "name": "OpenAlex — AI infrastructure and energy (optional key)",
+            "kind": "openalex",
+            "config": {
+              "query": "artificial intelligence data center energy power grid GPU cluster",
+              "limit": 35,
+              "sort": "publication_date:desc",
+              "evidenceRole": "independent",
+              "estimatedItemsPerRun": 20
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.9
+          },
+          {
+            "id": "ai-infra-arxiv",
+            "name": "arXiv — systems and energy",
+            "kind": "arxiv",
+            "config": {
+              "query": "data center energy AI infrastructure GPU cluster",
+              "limit": 25,
+              "sortBy": "submittedDate",
+              "evidenceRole": "independent",
+              "estimatedItemsPerRun": 20
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.85
+          },
+          {
+            "id": "ai-infra-tools",
+            "name": "Infrastructure tooling releases",
+            "kind": "github_releases",
+            "config": {
+              "repos": [
+                "duckdb/duckdb",
+                "OSGeo/gdal",
+                "qgis/QGIS"
+              ],
+              "perRepo": 3,
+              "evidenceRole": "context",
+              "estimatedItemsPerRun": 4
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.65
+          }
+        ],
+        "companionSources": [
+          {
+            "id": "ai-infra-reddit",
+            "name": "AI infrastructure practitioner discussions",
+            "kind": "collector",
+            "config": {
+              "operation": "reddit.search",
+              "args": {
+                "query": "AI data center power grid GPU infrastructure",
+                "limit": 50
+              },
+              "evidenceRole": "practitioner",
+              "estimatedItemsPerRun": 35
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.7
+          }
+        ],
+        "missions": [
+          {
+            "id": "ai-infrastructure-bottlenecks",
+            "name": "AI infrastructure bottlenecks",
+            "question": "Which power, grid, chip, siting, or financing constraint is becoming more binding for AI infrastructure?",
+            "terms": [
+              "data center",
+              "power",
+              "utility",
+              "transmission",
+              "interconnection",
+              "GPU",
+              "large load",
+              "electricity rate",
+              "financing"
+            ],
+            "sourceScope": [
+              "ai-infra-hn",
+              "ai-infra-openalex",
+              "ai-infra-arxiv"
+            ],
+            "status": "active",
+            "priority": 1.8,
+            "cadenceMinutes": 720,
+            "mode": "hypothesis",
+            "researchPolicy": "suggest",
+            "sprintPolicy": "scheduled",
+            "alertThreshold": 0.75,
+            "reminderLeadDays": 3
+          }
+        ],
+        "views": [
+          {
+            "id": "power-constraints",
+            "name": "Power constraints",
+            "query": "data center power utility transmission interconnection large load"
+          },
+          {
+            "id": "gpu-infrastructure",
+            "name": "GPU infrastructure",
+            "query": "GPU cluster AI infrastructure NVIDIA power cooling"
+          }
+        ],
+        "memory": {
+          "entities": [
+            {
+              "id": "data-center-power",
+              "type": "constraint",
+              "name": "Data-center power availability",
+              "importance": 0.95
+            },
+            {
+              "id": "grid-interconnection",
+              "type": "constraint",
+              "name": "Grid interconnection",
+              "importance": 0.9
+            },
+            {
+              "id": "gpu-supply",
+              "type": "constraint",
+              "name": "GPU supply",
+              "importance": 0.85
+            },
+            {
+              "id": "transmission-buildout",
+              "type": "infrastructure",
+              "name": "Transmission buildout",
+              "importance": 0.9
+            }
+          ],
+          "questions": [
+            {
+              "id": "binding-constraint",
+              "title": "Which constraint is currently binding in each major AI-infrastructure market?",
+              "importance": 0.95
+            },
+            {
+              "id": "household-rate-impact",
+              "title": "Where is large-load growth changing household electricity rates or utility investment plans?",
+              "importance": 0.9
+            }
+          ],
+          "relations": [
+            {
+              "from": "grid-interconnection",
+              "to": "data-center-power",
+              "relation": "depends_on",
+              "weight": 0.9,
+              "confidence": 0.9
+            },
+            {
+              "from": "data-center-power",
+              "to": "transmission-buildout",
+              "relation": "depends_on",
+              "weight": 0.82,
+              "confidence": 0.85
+            },
+            {
+              "from": "gpu-supply",
+              "to": "data-center-power",
+              "relation": "related_to",
+              "weight": 0.65,
+              "confidence": 0.75
+            }
+          ],
+          "claims": [
+            {
+              "id": "constraints-are-market-specific",
+              "title": "AI infrastructure constraints must be evaluated by market and project stage",
+              "summary": "A national narrative can obscure local power, transmission, interconnection, equipment, siting, or financing bottlenecks.",
+              "confidence": 0.9,
+              "importance": 0.95
+            }
+          ],
+          "expectations": [
+            {
+              "id": "power-constraint-differentiates",
+              "title": "Power and grid constraints will increasingly differentiate AI infrastructure markets",
+              "summary": "Track utilities, transmission, interconnection, and large-load policy as leading indicators.",
+              "confidence": 0.76,
+              "importance": 0.9
+            }
+          ]
+        },
+        "reasoning": {
+          "skill": {
+            "name": "AI infrastructure constraint analyst",
+            "description": "Reason across projects, utilities, grid assets, chips, capital, and policy without conflating announced capacity with operational capacity.",
+            "instructions": "Keep facility, campus, market, and grid-region aggregation levels explicit. Separate announced, permitted, under-construction, energized, and operational status. Treat capacity figures as sourced claims with units and scope. Seek primary utility, regulatory, permitting, and company evidence before concluding that a constraint is binding."
+          },
+          "briefingContract": [
+            "material project or policy change",
+            "capacity and status",
+            "primary evidence",
+            "affected market or grid",
+            "constraint implication",
+            "next observable event"
+          ],
+          "researchPlaybooks": [
+            {
+              "id": "constraint-diagnosis",
+              "name": "Constraint diagnosis",
+              "task": "investigate",
+              "trigger": "Evidence suggests a market's bottleneck changed.",
+              "instructions": "Map the claimed bottleneck to project status, utility territory, generation, transmission, interconnection, financing, equipment, and permitting. State which link is actually evidenced as binding."
+            }
+          ],
+          "providerHints": {
+            "chatgpt": "Use Deep Research for regulatory dockets, utility filings, local permitting, and cross-market evidence expansion.",
+            "claude": "Use the Mission Computer for longitudinal source tables, structured comparisons, and data transformations.",
+            "grok": "Use social discovery for emerging site or power chatter but verify against filings, permits, and company disclosures."
+          },
+          "outputContract": [
+            "state the binding constraint by market",
+            "preserve units and project status",
+            "identify the next decision or filing"
+          ]
+        },
+        "budget": {
+          "profile": "free",
+          "maxSources": 5,
+          "browserMinutesPerDay": 0.5,
+          "workflowStepsPerDay": 516,
+          "projectedRunsPerDay": 15
+        },
+        "interestTerms": [
+          "data centers",
+          "AI infrastructure",
+          "power grid",
+          "utility",
+          "transmission",
+          "interconnection",
+          "GPU",
+          "electricity rates"
+        ],
+        "evidencePolicy": {
+          "minPrimarySources": 1,
+          "minIndependentSources": 2,
+          "maxDiscoveryShare": 0.3,
+          "maxEvidenceAgeHours": 720,
+          "preferredDomains": [
+            "github.com",
+            "arxiv.org",
+            "openalex.org"
+          ]
+        },
+        "routines": [
+          {
+            "id": "ai-infra-monitor",
+            "name": "AI infrastructure monitor",
+            "description": "Refresh the cloud evidence lanes, rebuild the bottleneck Mission, sync its Mission Computer, and checkpoint durable memory.",
+            "missionId": "ai-infrastructure-bottlenecks",
+            "enabled": true,
+            "scheduleMinutes": 720,
+            "budgetClass": "light",
+            "trigger": "scheduled",
+            "steps": [
+              {
+                "id": "refresh",
+                "action": "refresh-sources",
+                "runtime": "auto",
+                "sourceIds": [
+                  "ai-infra-hn",
+                  "ai-infra-openalex",
+                  "ai-infra-arxiv",
+                  "ai-infra-tools"
+                ]
+              },
+              {
+                "id": "ingest",
+                "action": "wait-for-ingest",
+                "waitSeconds": 45
+              },
+              {
+                "id": "match",
+                "action": "rebuild-mission",
+                "runtime": "worker"
+              },
+              {
+                "id": "room",
+                "action": "sync-computer",
+                "runtime": "computer",
+                "optional": true
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "runtime": "computer",
+                "args": {
+                  "reason": "AI infrastructure Pack routine"
+                }
+              }
+            ]
+          },
+          {
+            "id": "ai-infra-decision-brief",
+            "name": "Prepare infrastructure decision brief",
+            "description": "Compile an exact model-agnostic context receipt when a human wants to reason deeply.",
+            "missionId": "ai-infrastructure-bottlenecks",
+            "enabled": true,
+            "scheduleMinutes": null,
+            "budgetClass": "standard",
+            "trigger": "manual",
+            "steps": [
+              {
+                "id": "context",
+                "action": "compile-context",
+                "reasoningTask": "decision",
+                "target": "generic",
+                "args": {
+                  "objective": "Which AI-infrastructure constraint is becoming most binding, and what evidence would change that conclusion?",
+                  "tokenBudget": 22000
+                }
+              },
+              {
+                "id": "research",
+                "action": "prepare-research",
+                "optional": true
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "args": {
+                  "reason": "Pre-decision memory checkpoint"
+                }
+              }
+            ]
+          }
+        ],
+        "lineage": {}
+      }
+    },
+    {
+      "id": "cloudflare-agent-week",
+      "version": "3.0.0",
+      "name": "Cloudflare Agent Week",
+      "description": "A cloud-first radar for Cloudflare's agent runtime, browser, Computer, Workers, MCP, and developer-platform launches, with optional signed-in social discovery.",
+      "author": "Driftglass contributors",
+      "category": "Agent infrastructure",
+      "icon": "⚡",
+      "featured": true,
+      "requiresCompanion": true,
+      "sourceCount": 5,
+      "cloudSourceCount": 4,
+      "companionSourceCount": 1,
+      "cloudCoverage": 0.8,
+      "missionCount": 1,
+      "memorySeedCount": 7,
+      "routineCount": 2,
+      "budgetProfile": "free",
+      "installUrl": "/intelligence-packs/cloudflare-agent-week.json",
+      "pack": {
+        "$schema": "../schema.json",
+        "driftglassPack": "3",
+        "id": "cloudflare-agent-week",
+        "version": "3.0.0",
+        "name": "Cloudflare Agent Week",
+        "description": "A cloud-first radar for Cloudflare's agent runtime, browser, Computer, Workers, MCP, and developer-platform launches, with optional signed-in social discovery.",
+        "author": "Driftglass contributors",
+        "category": "Agent infrastructure",
+        "icon": "⚡",
+        "featured": true,
+        "cloudSources": [
+          {
+            "id": "cf-agent-week-blog",
+            "name": "Cloudflare Agent Week posts",
+            "kind": "web_feed",
+            "config": {
+              "url": "https://blog.cloudflare.com/tag/agents-week/",
+              "renderStrategy": "adaptive",
+              "articleRenderStrategy": "direct",
+              "maxLinks": 30,
+              "maxArticles": 8,
+              "fetchArticles": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 8
+            },
+            "scheduleMinutes": 180,
+            "weight": 1.5
+          },
+          {
+            "id": "cf-agent-stack-releases",
+            "name": "Cloudflare agent stack releases",
+            "kind": "github_releases",
+            "config": {
+              "repos": [
+                "cloudflare/agents",
+                "cloudflare/computer",
+                "cloudflare/workers-sdk",
+                "cloudflare/playwright"
+              ],
+              "perRepo": 4,
+              "includePrereleases": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 4
+            },
+            "scheduleMinutes": 180,
+            "weight": 1.4
+          },
+          {
+            "id": "cf-agent-stack-activity",
+            "name": "Cloudflare agent stack activity",
+            "kind": "github_activity",
+            "config": {
+              "repos": [
+                "cloudflare/agents",
+                "cloudflare/computer",
+                "cloudflare/workers-sdk"
+              ],
+              "perRepo": 30,
+              "includeTypes": [
+                "PullRequestEvent",
+                "IssuesEvent",
+                "ReleaseEvent"
+              ],
+              "evidenceRole": "authoritative",
+              "estimatedItemsPerRun": 15
+            },
+            "scheduleMinutes": 360,
+            "weight": 1.05
+          },
+          {
+            "id": "cf-agent-packages",
+            "name": "Cloudflare agent package releases",
+            "kind": "npm_releases",
+            "config": {
+              "packages": [
+                "agents",
+                "@cloudflare/computer",
+                "wrangler",
+                "@cloudflare/playwright"
+              ],
+              "includePrereleases": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 5
+            },
+            "scheduleMinutes": 360,
+            "weight": 1.25
+          }
+        ],
+        "companionSources": [
+          {
+            "id": "cf-agent-week-x",
+            "name": "Cloudflare Agent Week on X",
+            "kind": "collector",
+            "config": {
+              "operation": "x.search",
+              "args": {
+                "query": "Cloudflare (Computer OR Kitesurf OR Agents SDK OR Workers)",
+                "limit": 50
+              },
+              "evidenceRole": "discovery",
+              "estimatedItemsPerRun": 35
+            },
+            "scheduleMinutes": 360,
+            "weight": 0.9
+          }
+        ],
+        "missions": [
+          {
+            "id": "cloudflare-agent-adoption",
+            "name": "Cloudflare agent adoption",
+            "question": "Which Cloudflare agent launch creates a practical workflow worth adopting now, and what evidence would change that judgment?",
+            "terms": [
+              "Cloudflare Computer",
+              "Kitesurf",
+              "Agents SDK",
+              "Workers",
+              "MCP",
+              "Workflows",
+              "Browser Run"
+            ],
+            "sourceScope": [
+              "cf-agent-week-blog",
+              "cf-agent-stack-releases",
+              "cf-agent-stack-activity",
+              "cf-agent-packages"
+            ],
+            "status": "active",
+            "priority": 1.9,
+            "cadenceMinutes": 360,
+            "mode": "decision",
+            "researchPolicy": "suggest",
+            "sprintPolicy": "scheduled",
+            "alertThreshold": 0.72,
+            "reminderLeadDays": 1
+          }
+        ],
+        "views": [
+          {
+            "id": "cloudflare-agent-runtime",
+            "name": "Agent runtime",
+            "query": "Cloudflare Computer Kitesurf Agents SDK Workflows MCP"
+          }
+        ],
+        "memory": {
+          "entities": [
+            {
+              "id": "cloudflare-computer",
+              "type": "runtime",
+              "name": "Cloudflare Computer",
+              "aliases": [
+                "@cloudflare/computer"
+              ],
+              "description": "Durable agent workspace with a shared filesystem and optional execution backends.",
+              "importance": 0.9
+            },
+            {
+              "id": "kitesurf",
+              "type": "browser",
+              "name": "Kitesurf",
+              "description": "Agent-first browser execution on Cloudflare Workers.",
+              "importance": 0.85
+            },
+            {
+              "id": "cloudflare-agents-sdk",
+              "type": "framework",
+              "name": "Cloudflare Agents SDK",
+              "aliases": [
+                "agents"
+              ],
+              "importance": 0.85
+            }
+          ],
+          "questions": [
+            {
+              "id": "production-readiness",
+              "title": "Which Agent Week capabilities are production-ready versus best kept as bounded experiments?",
+              "importance": 0.85
+            },
+            {
+              "id": "free-tier-fit",
+              "title": "Which architecture preserves the strongest agent capabilities within the Free or cheap Workers envelope?",
+              "importance": 0.9
+            }
+          ],
+          "relations": [
+            {
+              "from": "cloudflare-computer",
+              "to": "cloudflare-agents-sdk",
+              "relation": "related_to",
+              "weight": 0.8,
+              "confidence": 0.9,
+              "rationale": "Both participate in persistent Cloudflare agent applications."
+            },
+            {
+              "from": "kitesurf",
+              "to": "cloudflare-agents-sdk",
+              "relation": "related_to",
+              "weight": 0.7,
+              "confidence": 0.85,
+              "rationale": "Kitesurf provides a browser tool for Cloudflare-hosted agents."
+            }
+          ],
+          "claims": [
+            {
+              "id": "kitesurf-default-browser",
+              "title": "Kitesurf is the preferred lightweight public-page renderer",
+              "summary": "Use Kitesurf before Chromium when the page does not require a persistent signed-in browser session.",
+              "confidence": 0.82,
+              "importance": 0.9
+            }
+          ],
+          "expectations": [
+            {
+              "id": "agent-week-apis-evolve",
+              "title": "Agent Week preview APIs will continue to change before broad production maturity",
+              "summary": "Track release notes and implementation activity before locking deep integrations.",
+              "confidence": 0.78,
+              "importance": 0.82
+            }
+          ]
+        },
+        "reasoning": {
+          "skill": {
+            "name": "Cloudflare agent architecture",
+            "description": "Evaluate Cloudflare agent launches as an integrated architecture rather than isolated announcements.",
+            "instructions": "Separate generally available infrastructure, beta capability, and preview runtime. Prefer the smallest architecture that preserves the new capability. Compare direct HTTP, Kitesurf, Chromium, Computer filesystem, isolate execution, Workflows, and external reasoning surfaces by actual job-to-be-done."
+          },
+          "briefingContract": [
+            "what shipped",
+            "what is materially new",
+            "best practical use",
+            "maturity",
+            "cost or limit implication",
+            "one experiment worth running"
+          ],
+          "researchPlaybooks": [
+            {
+              "id": "architecture-decision",
+              "name": "Cloudflare architecture decision",
+              "task": "decision",
+              "trigger": "A new Cloudflare runtime changes an existing design choice.",
+              "instructions": "Compare the new path with the current Driftglass component. Preserve proven state, provenance, and retry boundaries unless the new capability subsumes them. State migration cost and rollback."
+            }
+          ],
+          "providerHints": {
+            "chatgpt": "Use Deep Research for current launch documentation and MCP for the private Driftglass history.",
+            "claude": "Use the Mission Computer files when reviewing code or architecture decisions.",
+            "grok": "Use social search for emerging implementation reports, but verify release facts against Cloudflare and repositories."
+          },
+          "outputContract": [
+            "recommend adopt, experiment, watch, or ignore",
+            "name the exact component boundary",
+            "state the next observable evidence"
+          ]
+        },
+        "budget": {
+          "profile": "free",
+          "maxSources": 5,
+          "browserMinutesPerDay": 1.5,
+          "workflowStepsPerDay": 1048,
+          "projectedRunsPerDay": 28
+        },
+        "interestTerms": [
+          "Cloudflare Computer",
+          "Kitesurf",
+          "Agents SDK",
+          "Workers",
+          "MCP",
+          "Workflows",
+          "AI Search"
+        ],
+        "evidencePolicy": {
+          "minPrimarySources": 2,
+          "minIndependentSources": 1,
+          "maxDiscoveryShare": 0.35,
+          "maxEvidenceAgeHours": 168,
+          "preferredDomains": [
+            "blog.cloudflare.com",
+            "developers.cloudflare.com",
+            "github.com",
+            "npmjs.com"
+          ]
+        },
+        "routines": [
+          {
+            "id": "cloudflare-agent-platform-monitor",
+            "name": "Cloudflare agent-platform monitor",
+            "description": "Refresh official releases, live repository activity, packages, and posts before updating the standing adoption Mission.",
+            "missionId": "cloudflare-agent-adoption",
+            "enabled": true,
+            "scheduleMinutes": 360,
+            "budgetClass": "light",
+            "trigger": "scheduled",
+            "steps": [
+              {
+                "id": "refresh",
+                "action": "refresh-sources",
+                "sourceIds": [
+                  "cf-agent-week-blog",
+                  "cf-agent-stack-releases",
+                  "cf-agent-stack-activity",
+                  "cf-agent-packages"
+                ]
+              },
+              {
+                "id": "ingest",
+                "action": "wait-for-ingest",
+                "waitSeconds": 45
+              },
+              {
+                "id": "match",
+                "action": "rebuild-mission"
+              },
+              {
+                "id": "room",
+                "action": "sync-computer",
+                "runtime": "computer",
+                "optional": true
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "args": {
+                  "reason": "Cloudflare agent-platform checkpoint"
+                }
+              }
+            ]
+          },
+          {
+            "id": "cloudflare-architecture-challenge",
+            "name": "Challenge the Cloudflare architecture thesis",
+            "description": "Prepare an adversarial context and Deep Research handoff without running a built-in model.",
+            "missionId": "cloudflare-agent-adoption",
+            "enabled": true,
+            "scheduleMinutes": null,
+            "budgetClass": "standard",
+            "trigger": "manual",
+            "steps": [
+              {
+                "id": "audit",
+                "action": "audit-memory"
+              },
+              {
+                "id": "context",
+                "action": "compile-context",
+                "reasoningTask": "challenge",
+                "target": "generic",
+                "args": {
+                  "objective": "Challenge the current thesis that Cloudflare is the best substrate for this personal intelligence system. Identify regressions, alternatives, and a decisive next test.",
+                  "tokenBudget": 24000
+                }
+              },
+              {
+                "id": "research",
+                "action": "prepare-research",
+                "optional": true
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "args": {
+                  "reason": "Architecture challenge checkpoint"
+                }
+              }
+            ]
+          }
+        ],
+        "lineage": {}
+      }
+    },
+    {
+      "id": "coding-agents",
+      "version": "3.1.0",
+      "name": "Coding Agents",
+      "description": "A cloud-first product and implementation radar for Codex, Claude Code, MCP, agent memory, IDE workflows, and reliable coding-agent practices.",
+      "author": "Driftglass contributors",
+      "category": "Developer tools",
+      "icon": "⌘",
+      "featured": true,
+      "requiresCompanion": true,
+      "sourceCount": 7,
+      "cloudSourceCount": 5,
+      "companionSourceCount": 2,
+      "cloudCoverage": 0.7142857142857143,
+      "missionCount": 1,
+      "memorySeedCount": 7,
+      "routineCount": 2,
+      "budgetProfile": "free",
+      "installUrl": "/intelligence-packs/coding-agents.json",
+      "pack": {
+        "$schema": "../schema.json",
+        "driftglassPack": "3",
+        "id": "coding-agents",
+        "version": "3.1.0",
+        "name": "Coding Agents",
+        "description": "A cloud-first product and implementation radar for Codex, Claude Code, MCP, agent memory, IDE workflows, and reliable coding-agent practices.",
+        "author": "Driftglass contributors",
+        "category": "Developer tools",
+        "icon": "⌘",
+        "featured": true,
+        "cloudSources": [
+          {
+            "id": "coding-agent-releases",
+            "name": "OpenAI Codex — stable releases",
+            "kind": "web_feed",
+            "config": {
+              "url": "https://github.com/openai/codex/releases",
+              "title": "OpenAI Codex stable releases",
+              "renderStrategy": "direct",
+              "articleRenderStrategy": "direct",
+              "sameOrigin": true,
+              "includePattern": "^/openai/codex/releases/tag/rust-v\\d+\\.\\d+\\.\\d+(?=\\n)",
+              "maxLinks": 20,
+              "maxArticles": 4,
+              "fetchArticles": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 4
+            },
+            "scheduleMinutes": 360,
+            "weight": 1.55
+          },
+          {
+            "id": "coding-agent-activity",
+            "name": "Anthropic Claude Code — releases",
+            "kind": "web_feed",
+            "config": {
+              "url": "https://github.com/anthropics/claude-code/releases",
+              "title": "Anthropic Claude Code releases",
+              "renderStrategy": "direct",
+              "articleRenderStrategy": "direct",
+              "sameOrigin": true,
+              "includePattern": "^/anthropics/claude-code/releases/tag/v\\d+\\.\\d+\\.\\d+(?=\\n)",
+              "maxLinks": 30,
+              "maxArticles": 10,
+              "fetchArticles": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 10
+            },
+            "scheduleMinutes": 360,
+            "weight": 1.55
+          },
+          {
+            "id": "coding-agent-mcp",
+            "name": "Model Context Protocol — official updates",
+            "kind": "web_feed",
+            "config": {
+              "url": "https://blog.modelcontextprotocol.io/",
+              "title": "Model Context Protocol updates",
+              "renderStrategy": "direct",
+              "articleRenderStrategy": "direct",
+              "sameOrigin": true,
+              "includePattern": "^/posts/\\d{4}-\\d{2}-\\d{2}/",
+              "excludePattern": "/tags/|/archives/|/search/",
+              "maxLinks": 20,
+              "maxArticles": 4,
+              "fetchArticles": true,
+              "evidenceRole": "primary",
+              "estimatedItemsPerRun": 4
+            },
+            "scheduleMinutes": 720,
+            "weight": 1.5
+          },
+          {
+            "id": "coding-agent-hn",
+            "name": "Hacker News — coding-agent practice",
+            "kind": "hackernews",
+            "config": {
+              "feed": "best",
+              "limit": 50,
+              "minScore": 20,
+              "watchTerms": [
+                "codex",
+                "claude code",
+                "coding agent",
+                "mcp",
+                "agent memory",
+                "agent workflow"
+              ],
+              "evidenceRole": "practitioner",
+              "estimatedItemsPerRun": 12
+            },
+            "scheduleMinutes": 180,
+            "weight": 0.9
+          },
+          {
+            "id": "coding-agent-research",
+            "name": "arXiv — coding-agent workflows",
+            "kind": "arxiv",
+            "config": {
+              "query": "\"coding agent\"",
+              "limit": 8,
+              "sortBy": "submittedDate",
+              "evidenceRole": "independent",
+              "estimatedItemsPerRun": 8
+            },
+            "scheduleMinutes": 720,
+            "weight": 1.05
+          }
+        ],
+        "companionSources": [
+          {
+            "id": "coding-agent-x",
+            "name": "Coding-agent builders on X",
+            "kind": "collector",
+            "config": {
+              "operation": "x.search",
+              "args": {
+                "query": "(Codex OR Claude Code OR coding agent OR MCP) -is:retweet",
+                "limit": 60
+              },
+              "evidenceRole": "discovery",
+              "estimatedItemsPerRun": 40
+            },
+            "scheduleMinutes": 360,
+            "weight": 0.9
+          },
+          {
+            "id": "coding-agent-reddit",
+            "name": "Coding-agent practitioner discussions",
+            "kind": "collector",
+            "config": {
+              "operation": "reddit.search",
+              "args": {
+                "query": "Codex Claude Code coding agents",
+                "limit": 50
+              },
+              "evidenceRole": "practitioner",
+              "estimatedItemsPerRun": 35
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.8
+          }
+        ],
+        "missions": [
+          {
+            "id": "coding-agent-workflow-improvements",
+            "name": "Coding-agent workflow improvements",
+            "question": "What changed that should materially improve my multi-agent coding workflow, reliability, or migration path while preserving explicit approvals, provenance, and rollback?",
+            "terms": [
+              "Codex",
+              "Claude Code",
+              "coding agent",
+              "MCP",
+              "agent memory",
+              "context engineering",
+              "IDE integration",
+              "skills",
+              "approval",
+              "permissions",
+              "hooks",
+              "elicitation",
+              "evidence receipt",
+              "provenance",
+              "rollback",
+              "stateless",
+              "session"
+            ],
+            "sourceScope": [
+              "coding-agent-releases",
+              "coding-agent-activity",
+              "coding-agent-mcp",
+              "coding-agent-hn",
+              "coding-agent-research"
+            ],
+            "status": "active",
+            "priority": 2,
+            "cadenceMinutes": 360,
+            "mode": "decision",
+            "researchPolicy": "suggest",
+            "sprintPolicy": "scheduled",
+            "alertThreshold": 0.7,
+            "reminderLeadDays": 1
+          }
+        ],
+        "views": [
+          {
+            "id": "coding-agent-memory",
+            "name": "Agent memory",
+            "query": "coding agent memory context persistence skills"
+          },
+          {
+            "id": "coding-agent-migrations",
+            "name": "Workflow migrations",
+            "query": "Claude Code Codex migration config workflow"
+          }
+        ],
+        "memory": {
+          "entities": [
+            {
+              "id": "openai-codex",
+              "type": "coding-agent",
+              "name": "OpenAI Codex",
+              "aliases": [
+                "Codex CLI"
+              ],
+              "importance": 0.95
+            },
+            {
+              "id": "claude-code",
+              "type": "coding-agent",
+              "name": "Claude Code",
+              "importance": 0.95
+            },
+            {
+              "id": "model-context-protocol",
+              "type": "protocol",
+              "name": "Model Context Protocol",
+              "aliases": [
+                "MCP"
+              ],
+              "importance": 0.9
+            }
+          ],
+          "questions": [
+            {
+              "id": "workflow-improvement",
+              "title": "Which release or configuration pattern produces a measurable coding-agent workflow improvement?",
+              "importance": 0.95
+            },
+            {
+              "id": "memory-reliability",
+              "title": "Which memory and context mechanism remains reliable across long-running coding work?",
+              "importance": 0.9
+            }
+          ],
+          "relations": [
+            {
+              "from": "openai-codex",
+              "to": "model-context-protocol",
+              "relation": "related_to",
+              "weight": 0.75,
+              "confidence": 0.85
+            },
+            {
+              "from": "claude-code",
+              "to": "model-context-protocol",
+              "relation": "related_to",
+              "weight": 0.75,
+              "confidence": 0.85
+            }
+          ],
+          "claims": [
+            {
+              "id": "official-release-before-chatter",
+              "title": "Workflow changes should be anchored in official releases or reproducible configuration",
+              "summary": "Community reports are valuable discovery signals but not sufficient proof of a workflow improvement.",
+              "confidence": 0.9,
+              "importance": 0.92
+            }
+          ],
+          "expectations": [
+            {
+              "id": "agent-memory-converges",
+              "title": "Coding-agent memory will converge toward explicit project and task context boundaries",
+              "summary": "Track whether new releases make memory more inspectable, portable, and correctable.",
+              "confidence": 0.62,
+              "importance": 0.78
+            }
+          ]
+        },
+        "reasoning": {
+          "skill": {
+            "name": "Coding-agent workflow evaluator",
+            "description": "Translate releases and practitioner reports into concrete workflow changes.",
+            "instructions": "Prioritize official release evidence and reproducible configuration. Distinguish a model-quality improvement from an orchestration, context, tooling, or IDE improvement. Convert noteworthy changes into one testable workflow experiment with success criteria and rollback."
+          },
+          "briefingContract": [
+            "what changed",
+            "which workflow it affects",
+            "why it is better than the current path",
+            "exact experiment",
+            "migration or rollback note"
+          ],
+          "researchPlaybooks": [
+            {
+              "id": "workflow-experiment",
+              "name": "Workflow experiment",
+              "task": "decision",
+              "trigger": "A release or pattern could replace part of the current coding-agent workflow.",
+              "instructions": "Define the current baseline, proposed change, expected benefit, setup steps, test task, evaluation criteria, failure modes, and rollback."
+            },
+            {
+              "id": "claim-challenge",
+              "name": "Challenge agent claims",
+              "task": "challenge",
+              "trigger": "A community claim implies a large capability jump.",
+              "instructions": "Find the underlying release, code, benchmark, or reproduction. Separate model behavior, harness behavior, prompting, and tooling."
+            }
+          ],
+          "providerHints": {
+            "chatgpt": "Use Codex and ChatGPT context together; use Deep Research only when the implementation evidence is distributed across many sources.",
+            "claude": "Use the generated Agent Skill and Mission Computer when evaluating Claude Code configuration or repository changes.",
+            "grok": "Use X-native discovery to find fresh workflow reports, then validate them against releases and repositories."
+          },
+          "outputContract": [
+            "recommend try now, test, watch, or ignore",
+            "give one concrete experiment",
+            "name success criteria"
+          ]
+        },
+        "budget": {
+          "profile": "free",
+          "maxSources": 7,
+          "browserMinutesPerDay": 0.5,
+          "workflowStepsPerDay": 1080,
+          "projectedRunsPerDay": 20
+        },
+        "interestTerms": [
+          "Codex",
+          "Claude Code",
+          "coding agents",
+          "MCP",
+          "agent memory",
+          "context engineering",
+          "skills",
+          "IDE integration"
+        ],
+        "evidencePolicy": {
+          "minPrimarySources": 1,
+          "minIndependentSources": 1,
+          "maxDiscoveryShare": 0.4,
+          "maxEvidenceAgeHours": 168,
+          "preferredDomains": [
+            "github.com",
+            "openai.com",
+            "anthropic.com",
+            "modelcontextprotocol.io"
+          ]
+        },
+        "routines": [
+          {
+            "id": "coding-agent-monitor",
+            "name": "Coding-agent workflow monitor",
+            "description": "Refresh official product releases, protocol updates, community discussion, and research; then update the workflow Mission and its Computer.",
+            "missionId": "coding-agent-workflow-improvements",
+            "enabled": true,
+            "scheduleMinutes": 360,
+            "budgetClass": "light",
+            "trigger": "scheduled",
+            "steps": [
+              {
+                "id": "refresh",
+                "action": "refresh-sources",
+                "sourceIds": [
+                  "coding-agent-releases",
+                  "coding-agent-activity",
+                  "coding-agent-mcp",
+                  "coding-agent-hn",
+                  "coding-agent-research"
+                ]
+              },
+              {
+                "id": "ingest",
+                "action": "wait-for-ingest",
+                "waitSeconds": 45
+              },
+              {
+                "id": "match",
+                "action": "rebuild-mission"
+              },
+              {
+                "id": "room",
+                "action": "sync-computer",
+                "runtime": "computer",
+                "optional": true
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "args": {
+                  "reason": "Coding-agent monitor checkpoint"
+                }
+              }
+            ]
+          },
+          {
+            "id": "coding-agent-adoption-brief",
+            "name": "Prepare adoption brief",
+            "description": "Compile current evidence, prior choices, contradictions, and next actions for a strong subscription-model judgment.",
+            "missionId": "coding-agent-workflow-improvements",
+            "enabled": true,
+            "scheduleMinutes": null,
+            "budgetClass": "standard",
+            "trigger": "manual",
+            "steps": [
+              {
+                "id": "context",
+                "action": "compile-context",
+                "reasoningTask": "decision",
+                "target": "generic",
+                "args": {
+                  "objective": "What should I change in my coding-agent workflow now, and what should I deliberately not change?",
+                  "tokenBudget": 18000
+                }
+              },
+              {
+                "id": "checkpoint",
+                "action": "checkpoint-memory",
+                "args": {
+                  "reason": "Coding-agent adoption decision checkpoint"
+                }
+              }
+            ]
+          }
+        ],
+        "lineage": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,626 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftglass.dev/intelligence-packs/schema.json",
+  "title": "Driftglass Intelligence Pack",
+  "description": "A cloud-first analyst module containing sources, Missions, epistemic memory seeds, deterministic Intelligence Routines, reasoning contracts, lineage, and an explicit Cloudflare budget contract.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "driftglassPack",
+    "id",
+    "version",
+    "name",
+    "description"
+  ],
+  "properties": {
+    "driftglassPack": {
+      "const": "3"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,79}$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "author": {
+      "type": "string",
+      "maxLength": 180
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "updateUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "category": {
+      "type": "string",
+      "maxLength": 100
+    },
+    "icon": {
+      "type": "string",
+      "maxLength": 12
+    },
+    "featured": {
+      "type": "boolean"
+    },
+    "requiresCompanion": {
+      "type": "boolean"
+    },
+    "cloudSources": {
+      "$ref": "#/$defs/sources"
+    },
+    "companionSources": {
+      "$ref": "#/$defs/sources"
+    },
+    "sources": {
+      "$ref": "#/$defs/sources"
+    },
+    "missions": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "terms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceScope": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "active",
+              "paused",
+              "complete"
+            ]
+          },
+          "priority": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 5
+          },
+          "cadenceMinutes": {
+            "type": "number",
+            "minimum": 15,
+            "maximum": 43200
+          },
+          "mode": {
+            "enum": [
+              "watch",
+              "decision",
+              "hypothesis",
+              "event"
+            ]
+          },
+          "researchPolicy": {
+            "enum": [
+              "manual",
+              "suggest",
+              "always"
+            ]
+          },
+          "sprintPolicy": {
+            "enum": [
+              "manual",
+              "scheduled"
+            ]
+          },
+          "alertThreshold": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "expectedNextEvent": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "expectedBy": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "reminderLeadDays": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 365
+          }
+        }
+      }
+    },
+    "views": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "query"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          },
+          "filters": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "memory": {
+      "type": "object",
+      "properties": {
+        "entities": {
+          "type": "array",
+          "maxItems": 500,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        },
+        "findings": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title",
+              "summary"
+            ]
+          }
+        },
+        "questions": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title"
+            ]
+          }
+        },
+        "relations": {
+          "type": "array",
+          "maxItems": 1000,
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to",
+              "relation"
+            ]
+          }
+        },
+        "claims": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "validFrom": {
+                "type": "string"
+              },
+              "validTo": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "expectations": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "title"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "expectedBy": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "importance": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "reasoning": {
+      "type": "object",
+      "properties": {
+        "skill": {
+          "type": "object",
+          "required": [
+            "instructions"
+          ]
+        },
+        "briefingContract": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "researchPlaybooks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "instructions"
+            ]
+          }
+        },
+        "providerHints": {
+          "type": "object"
+        },
+        "outputContract": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "enum": [
+            "free",
+            "cheap",
+            "custom"
+          ]
+        },
+        "maxSources": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 250
+        },
+        "browserMinutesPerDay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "workflowStepsPerDay": {
+          "type": "number",
+          "minimum": 0
+        },
+        "projectedRunsPerDay": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "interestTerms": {
+      "type": "array",
+      "maxItems": 300,
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidencePolicy": {
+      "type": "object",
+      "properties": {
+        "minPrimarySources": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "minIndependentSources": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 20
+        },
+        "maxDiscoveryShare": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "maxEvidenceAgeHours": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 43800
+        },
+        "preferredDomains": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "routines": {
+      "type": "array",
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,99}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 180
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1500
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "scheduleMinutes": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 30,
+            "maximum": 43200
+          },
+          "budgetClass": {
+            "enum": [
+              "light",
+              "standard",
+              "deep"
+            ]
+          },
+          "trigger": {
+            "enum": [
+              "manual",
+              "scheduled",
+              "evidence-change",
+              "expected-event"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 24,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "action"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "action": {
+                  "enum": [
+                    "refresh-sources",
+                    "wait-for-ingest",
+                    "rebuild-mission",
+                    "sync-computer",
+                    "audit-memory",
+                    "compile-context",
+                    "prepare-research",
+                    "checkpoint-memory"
+                  ]
+                },
+                "runtime": {
+                  "enum": [
+                    "auto",
+                    "worker",
+                    "kitesurf",
+                    "chromium",
+                    "computer",
+                    "companion"
+                  ]
+                },
+                "optional": {
+                  "type": "boolean"
+                },
+                "sourceIds": {
+                  "type": "array",
+                  "maxItems": 80,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "waitSeconds": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 3600
+                },
+                "reasoningTask": {
+                  "enum": [
+                    "daily-brief",
+                    "investigate",
+                    "decision",
+                    "challenge",
+                    "deep-research",
+                    "memory-update"
+                  ]
+                },
+                "target": {
+                  "enum": [
+                    "chatgpt",
+                    "claude",
+                    "grok",
+                    "generic"
+                  ]
+                },
+                "args": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "properties": {
+        "forkedFrom": {
+          "type": "string"
+        },
+        "upstreamPackId": {
+          "type": "string"
+        },
+        "upstreamVersion": {
+          "type": "string"
+        },
+        "sourceDropUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sources": {
+      "type": "array",
+      "maxItems": 250,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "config",
+          "scheduleMinutes",
+          "weight"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "hackernews",
+              "lobsters",
+              "bluesky",
+              "arxiv",
+              "openalex",
+              "github_releases",
+              "github_activity",
+              "npm_releases",
+              "pypi_releases",
+              "web",
+              "web_feed",
+              "collector",
+              "manual",
+              "email"
+            ]
+          },
+          "config": {
+            "type": "object"
+          },
+          "scheduleMinutes": {
+            "type": "number",
+            "minimum": 15,
+            "maximum": 10080
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0.1,
+            "maximum": 3
+          }
+        }
+      }
+    }
+  }
+}

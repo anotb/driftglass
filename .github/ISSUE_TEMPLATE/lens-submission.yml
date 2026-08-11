@@ -1,0 +1,32 @@
+name: Propose a Driftglass Lens
+description: Suggest a portable source and Mission bundle for the community catalog.
+title: "Lens: "
+labels: ["lens"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Lens name
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: What signal should this Lens surface?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Proposed sources
+      description: Include official pages, repositories, public APIs, or Companion capabilities.
+    validations:
+      required: true
+  - type: textarea
+    id: missions
+    attributes:
+      label: Proposed Research Missions
+  - type: input
+    id: draft
+    attributes:
+      label: Draft Lens JSON or repository URL

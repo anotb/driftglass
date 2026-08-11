@@ -1,0 +1,13 @@
+# Required. Generate with: openssl rand -hex 32
+# This short placeholder is intentionally rejected by Driftglass.
+DRIFTGLASS_SECRET=replace-me
+
+# Optional. Raises GitHub REST rate limits for release collection.
+GITHUB_TOKEN=
+
+# Optional. OpenAlex requires a free account key for every API request. Never put it in source JSON.
+OPENALEX_API_KEY=
+
+# Optional. Connect the separately deployed Cloudflare Computer Evidence Lab.
+DEEP_DIVE_LAB_URL=
+DEEP_DIVE_LAB_TOKEN=

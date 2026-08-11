@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run release:privacy
+      - run: npm ci --registry=https://registry.npmjs.org
+      - run: npm run check:deploy
+
+  deep-dive-lab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --prefix labs/deep-dive-lab --registry=https://registry.npmjs.org
+      - run: npm run lab:typecheck
+
+  agent-memory-bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --prefix labs/agent-memory-bridge --registry=https://registry.npmjs.org
+      - run: npm run agent-memory:typecheck
+
+  companion-portability:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --check driftglass-relay/driftglass-relay.mjs
+      - run: node driftglass-relay/driftglass-relay.mjs capabilities
+
+  portable-persistence:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 24.4.0
+          - os: macos-latest
+            node: 24.4.0
+          - os: windows-latest
+            node: 24.4.0
+          - os: ubuntu-latest
+            node: 24
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm ci --registry=https://registry.npmjs.org
+      - run: npm run social-card:check
+      - run: node -e "require('node:fs').rmSync('.test-dist',{recursive:true,force:true})"
+      - run: npx tsc -p tsconfig.test.json
+      - run: node -e "require('node:fs').writeFileSync('.test-dist/package.json',JSON.stringify({type:'commonjs'}))"
+      - run: node --test tests/runtime-node-persistence.test.mjs

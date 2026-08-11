@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "driftglass-computer-power-mode",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-07",
+  "compatibility_flags": ["nodejs_compat", "experimental"],
+  "worker_loaders": [
+    { "binding": "LOADER" }
+  ],
+  "durable_objects": {
+    "bindings": [
+      { "name": "CASE_COMPUTER", "class_name": "CaseComputer" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["CaseComputer"] }
+  ],
+  "vars": {
+    "APP_NAME": "Driftglass Computer Power Mode"
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

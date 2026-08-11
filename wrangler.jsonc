@@ -1,0 +1,307 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "driftglass",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-07",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/corpus/*",
+      "/mcp",
+      "/mcp/*",
+      "/authorize",
+      "/oauth/*",
+      "/.well-known/oauth-authorization-server",
+      "/.well-known/oauth-protected-resource",
+      "/.well-known/oauth-protected-resource/*",
+      "/packet/*",
+      "/collector/*",
+      "/feedback/*",
+      "/share/*",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/health"
+    ],
+    "not_found_handling": "single-page-application"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "driftglass-db",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_KV"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EVIDENCE",
+      "bucket_name": "driftglass-evidence"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "INGEST_QUEUE",
+        "queue": "driftglass-ingest"
+      },
+      {
+        "binding": "INGEST_DLQ",
+        "queue": "driftglass-ingest-dlq"
+      },
+      {
+        "binding": "INGEST_QUARANTINE",
+        "queue": "driftglass-ingest-quarantine"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "driftglass-ingest",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "max_concurrency": 1,
+        "dead_letter_queue": "driftglass-ingest-dlq"
+      },
+      {
+        "queue": "driftglass-ingest-dlq",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "max_concurrency": 1,
+        "dead_letter_queue": "driftglass-ingest-quarantine"
+      },
+      {
+        "queue": "driftglass-ingest-quarantine",
+        "max_batch_size": 1,
+        "max_batch_timeout": 5,
+        "max_retries": 20,
+        "max_concurrency": 1,
+        "retry_delay": 3600
+      }
+    ]
+  },
+  "browser": {
+    "binding": "BROWSER",
+    "remote": true
+  },
+  "workflows": [
+    {
+      "name": "driftglass-mission-sprints",
+      "binding": "MISSION_WORKFLOW",
+      "class_name": "MissionSprintWorkflow"
+    },
+    {
+      "name": "driftglass-memory-graph",
+      "binding": "MEMORY_WORKFLOW",
+      "class_name": "MemoryGraphWorkflow"
+    },
+    {
+      "name": "driftglass-intelligence-routines",
+      "binding": "ROUTINE_WORKFLOW",
+      "class_name": "IntelligenceRoutineWorkflow"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/5 * * * *"
+    ]
+  },
+  "vars": {
+    "APP_NAME": "Driftglass",
+    "DEFAULT_TIMEZONE": "America/New_York",
+    "BRIEFING_LOCAL_HOUR": "7",
+    "MAX_DAILY_STORIES": "12",
+    "PUBLIC_BASE_URL": "",
+    "PUBLIC_INDEXING": "enabled",
+    "RAW_PUBLIC_RETENTION_DAYS": "30",
+    "INGEST_QUEUE_NAME": "driftglass-ingest",
+    "INGEST_DLQ_NAME": "driftglass-ingest-dlq",
+    "INGEST_QUARANTINE_NAME": "driftglass-ingest-quarantine"
+  },
+  "secrets": {
+    "required": [
+      "DRIFTGLASS_SECRET"
+    ]
+  },
+  "observability": {
+    "enabled": false,
+    "logs": {
+      "enabled": false,
+      "invocation_logs": false
+    },
+    "traces": {
+      "enabled": false
+    }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MISSION_COMPUTER",
+        "class_name": "MissionComputer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "MissionComputer"
+      ]
+    }
+  ],
+  "ai_search_namespaces": [
+    {
+      "binding": "AI_SEARCH",
+      "namespace": "driftglass",
+      "remote": true
+    }
+  ],
+  "env": {
+    "staging": {
+      "assets": {
+        "directory": "./public",
+        "binding": "ASSETS",
+        "run_worker_first": [
+          "/*"
+        ],
+        "not_found_handling": "single-page-application"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "driftglass-staging-db",
+          "migrations_dir": "migrations"
+        }
+      ],
+      "kv_namespaces": [
+        {
+          "binding": "OAUTH_KV"
+        }
+      ],
+      "r2_buckets": [
+        {
+          "binding": "EVIDENCE",
+          "bucket_name": "driftglass-staging-evidence"
+        }
+      ],
+      "queues": {
+        "producers": [
+          {
+            "binding": "INGEST_QUEUE",
+            "queue": "driftglass-staging-ingest"
+          },
+          {
+            "binding": "INGEST_DLQ",
+            "queue": "driftglass-staging-ingest-dlq"
+          },
+          {
+            "binding": "INGEST_QUARANTINE",
+            "queue": "driftglass-staging-ingest-quarantine"
+          }
+        ],
+        "consumers": [
+          {
+            "queue": "driftglass-staging-ingest",
+            "max_batch_size": 1,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "max_concurrency": 1,
+            "dead_letter_queue": "driftglass-staging-ingest-dlq"
+          },
+          {
+            "queue": "driftglass-staging-ingest-dlq",
+            "max_batch_size": 1,
+            "max_batch_timeout": 5,
+            "max_retries": 3,
+            "max_concurrency": 1,
+            "dead_letter_queue": "driftglass-staging-ingest-quarantine"
+          },
+          {
+            "queue": "driftglass-staging-ingest-quarantine",
+            "max_batch_size": 1,
+            "max_batch_timeout": 5,
+            "max_retries": 20,
+            "max_concurrency": 1,
+            "retry_delay": 3600
+          }
+        ]
+      },
+      "browser": {
+        "binding": "BROWSER",
+        "remote": true
+      },
+      "workflows": [
+        {
+          "name": "driftglass-staging-mission-sprints",
+          "binding": "MISSION_WORKFLOW",
+          "class_name": "MissionSprintWorkflow"
+        },
+        {
+          "name": "driftglass-staging-memory-graph",
+          "binding": "MEMORY_WORKFLOW",
+          "class_name": "MemoryGraphWorkflow"
+        },
+        {
+          "name": "driftglass-staging-intelligence-routines",
+          "binding": "ROUTINE_WORKFLOW",
+          "class_name": "IntelligenceRoutineWorkflow"
+        }
+      ],
+      "triggers": {
+        "crons": []
+      },
+      "vars": {
+        "APP_NAME": "Driftglass Staging",
+        "DEFAULT_TIMEZONE": "America/New_York",
+        "BRIEFING_LOCAL_HOUR": "7",
+        "MAX_DAILY_STORIES": "12",
+        "PUBLIC_BASE_URL": "",
+        "PUBLIC_INDEXING": "disabled",
+        "RAW_PUBLIC_RETENTION_DAYS": "30",
+        "INGEST_QUEUE_NAME": "driftglass-staging-ingest",
+        "INGEST_DLQ_NAME": "driftglass-staging-ingest-dlq",
+        "INGEST_QUARANTINE_NAME": "driftglass-staging-ingest-quarantine"
+      },
+      "secrets": {
+        "required": [
+          "DRIFTGLASS_SECRET"
+        ]
+      },
+      "observability": {
+        "enabled": false,
+        "logs": {
+          "enabled": false,
+          "invocation_logs": false
+        },
+        "traces": {
+          "enabled": false
+        }
+      },
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "MISSION_COMPUTER",
+            "class_name": "MissionComputer"
+          }
+        ]
+      },
+      "ai_search_namespaces": [
+        {
+          "binding": "AI_SEARCH",
+          "namespace": "driftglass-staging",
+          "remote": true
+        }
+      ]
+    }
+  }
+}

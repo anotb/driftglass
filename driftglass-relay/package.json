@@ -1,0 +1,21 @@
+{
+  "name": "@driftglass/companion",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "driftglass-relay": "driftglass-relay.mjs",
+    "driftglass-companion": "driftglass-relay.mjs"
+  },
+  "scripts": {
+    "start": "node driftglass-relay.mjs run",
+    "once": "node driftglass-relay.mjs once",
+    "doctor": "node driftglass-relay.mjs doctor",
+    "check": "node --check driftglass-relay.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0",
+  "description": "Cross-platform personal-source Companion for Driftglass"
+}

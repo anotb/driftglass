@@ -1,0 +1,3 @@
+# Required. Generate with: openssl rand -hex 32
+# This short placeholder is intentionally rejected by Driftglass.
+DRIFTGLASS_SECRET=replace-me

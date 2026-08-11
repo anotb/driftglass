@@ -1,0 +1,108 @@
+{
+  "name": "driftglass",
+  "version": "0.9.0",
+  "private": true,
+  "type": "module",
+  "description": "Personal intelligence for standing questions: chosen sources become developing Stories, current cited answers, connected memory, decisions, forecasts, Intelligence Packs, and one workspace per Mission.",
+  "scripts": {
+    "dev": "npm run sync:relay && node scripts/run-wrangler-dev.mjs",
+    "dev:remote": "npm run sync:relay && node scripts/run-wrangler-dev.mjs --remote",
+    "sync:relay": "node scripts/sync-relay-assets.mjs",
+    "types": "wrangler types ./src/worker-configuration.d.ts",
+    "types:check": "wrangler types ./src/worker-configuration.d.ts --check",
+    "typecheck": "npm run migrations:check && npm run types:check && tsc --noEmit",
+    "test:compile": "node scripts/compile-tests.mjs",
+    "test": "npm run migrations:check && npm run relay:assets:check && npm run lenses:check && npm run intelligence-packs:check && npm run social-card:check && npm run test:compile && node --test tests/*.test.mjs",
+    "build": "npm run generate:migrations && npm run sync:relay && npm run sync:lenses && npm run sync:intelligence-packs && npm run types:check && tsc --noEmit",
+    "check": "npm run typecheck && npm test && npm run lab:typecheck:offline && npm run agent-memory:typecheck:offline && node scripts/verify-repo.mjs",
+    "check:startup": "node -e \"require('node:fs').mkdirSync('dist',{recursive:true})\" && wrangler check startup --env=\"\" --outfile dist/worker-startup.cpuprofile",
+    "check:startup:staging": "node -e \"require('node:fs').mkdirSync('dist',{recursive:true})\" && wrangler check startup --env staging --outfile dist/worker-startup-staging.cpuprofile",
+    "check:deploy": "npm run check && npm run check:startup && npm run check:startup:staging && wrangler deploy --env=\"\" --dry-run --outdir dist/dry-run && wrangler deploy --env staging --dry-run --outdir dist/dry-run-staging",
+    "release:check": "node scripts/check-release-candidate.mjs",
+    "release:privacy": "node scripts/check-release-privacy.mjs --history",
+    "launch:build": "node scripts/build-launch-assets.mjs",
+    "launch:capture": "node scripts/capture-launch-assets.mjs",
+    "launch:check": "node scripts/check-launch-assets.mjs",
+    "social-card:build": "node scripts/build-social-card.mjs",
+    "social-card:check": "node scripts/build-social-card.mjs --check",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --env=\"\"",
+    "db:migrate:staging": "wrangler d1 migrations apply DB --remote --env staging",
+    "r2:lifecycle": "node scripts/configure-r2-lifecycle.mjs",
+    "r2:lifecycle:staging": "node scripts/configure-r2-lifecycle.mjs --env staging",
+    "r2:lifecycle:check": "node --test tests/r2-lifecycle.test.mjs",
+    "deploy": "npm run build && wrangler deploy --env=\"\" && npm run db:migrate:remote && npm run r2:lifecycle",
+    "deploy:first": "npm run build && wrangler deploy --env=\"\" --secrets-file .deploy-secrets && npm run db:migrate:remote && npm run r2:lifecycle",
+    "deploy:staging": "npm run build && wrangler deploy --env staging && npm run db:migrate:staging && npm run r2:lifecycle:staging",
+    "deploy:staging:first": "npm run build && wrangler deploy --env staging --secrets-file .deploy-secrets.staging && npm run db:migrate:staging && npm run r2:lifecycle:staging",
+    "relay:check": "npm --prefix driftglass-relay run check",
+    "relay:assets:check": "node scripts/sync-relay-assets.mjs --check",
+    "relay:doctor": "npm --prefix driftglass-relay run doctor",
+    "upstreams:check": "node scripts/check-upstreams.mjs",
+    "generate:migrations": "node scripts/generate-migrations.mjs",
+    "migrations:check": "node scripts/generate-migrations.mjs --check",
+    "lab:typecheck": "npm --prefix labs/deep-dive-lab run typecheck",
+    "lab:deploy": "npm --prefix labs/deep-dive-lab run deploy",
+    "typecheck:offline": "npm run migrations:check && tsc -p tsconfig.offline.json --noEmit",
+    "lab:typecheck:offline": "npm --prefix labs/deep-dive-lab run typecheck:offline",
+    "sync:lenses": "node scripts/sync-lenses.mjs",
+    "lenses:check": "node scripts/sync-lenses.mjs --check",
+    "sync:intelligence-packs": "node scripts/sync-intelligence-packs.mjs",
+    "packs:check": "node scripts/sync-intelligence-packs.mjs --check",
+    "intelligence-packs:check": "node scripts/sync-intelligence-packs.mjs --check",
+    "agent-memory:typecheck": "npm --prefix labs/agent-memory-bridge run typecheck",
+    "agent-memory:typecheck:offline": "npm --prefix labs/agent-memory-bridge run typecheck:offline",
+    "agent-memory:deploy": "npm --prefix labs/agent-memory-bridge run deploy",
+    "selfhost:build": "node scripts/build-selfhost.mjs",
+    "selfhost": "node dist/selfhost/driftglass-selfhost.mjs",
+    "selfhost:init": "npm run selfhost:build --silent && node dist/selfhost/driftglass-selfhost.mjs init"
+  },
+  "dependencies": {
+    "@cfworker/json-schema": "4.1.1",
+    "@cloudflare/computer": "0.1.1",
+    "@cloudflare/workers-oauth-provider": "0.10.2",
+    "@modelcontextprotocol/server": "2.0.0",
+    "agents": "0.20.1",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@types/node": "26.2.0",
+    "esbuild": "0.28.1",
+    "fontkit": "2.0.4",
+    "sharp": "0.35.2",
+    "typescript": "5.8.3",
+    "wrangler": "4.120.0"
+  },
+  "cloudflare": {
+    "bindings": {
+      "DRIFTGLASS_SECRET": {
+        "description": "Required owner secret. Generate a long random value with `openssl rand -hex 32`. It protects the dashboard and independently derives private read and operations capability URLs."
+      },
+      "GITHUB_TOKEN": {
+        "description": "Optional GitHub token for higher GitHub Releases rate limits. Leave blank for the zero-config public path."
+      },
+      "OPENALEX_API_KEY": {
+        "description": "Optional free OpenAlex account key. OpenAlex requires authentication for every API request; leave blank to defer OpenAlex sources while all other cloud lanes continue."
+      },
+      "DEEP_DIVE_LAB_URL": {
+        "description": "Optional URL of Driftglass Computer Power Mode, a separately deployed @cloudflare/computer dual-isolate workspace for advanced Mission and Story transforms."
+      },
+      "DEEP_DIVE_LAB_TOKEN": {
+        "description": "Optional shared token used by the core Worker to create and read Computer Power Mode workspaces."
+      }
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "allowScripts": {
+    "@mongodb-js/zstd": false,
+    "core-js-pure": false,
+    "esbuild@0.28.1": true,
+    "fsevents": false,
+    "node-liblzma": false,
+    "workerd@1.20260801.1": true
+  },
+  "license": "Apache-2.0"
+}

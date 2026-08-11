@@ -1,0 +1,370 @@
+{
+  "$schema": "../schema.json",
+  "driftglassPack": "3",
+  "id": "ai-infrastructure-power",
+  "version": "3.0.1",
+  "name": "AI Infrastructure & Power",
+  "description": "A standing intelligence module for data centers, chips, utilities, grid constraints, transmission, interconnection, and AI-infrastructure financing.",
+  "author": "Driftglass contributors",
+  "category": "Infrastructure",
+  "icon": "⌁",
+  "featured": true,
+  "cloudSources": [
+    {
+      "id": "ai-infra-hn",
+      "name": "Hacker News — AI infrastructure",
+      "kind": "hackernews",
+      "config": {
+        "feed": "best",
+        "limit": 70,
+        "minScore": 12,
+        "watchTerms": [
+          "data center",
+          "power grid",
+          "electricity",
+          "GPU",
+          "NVIDIA",
+          "transmission",
+          "utility"
+        ],
+        "evidenceRole": "practitioner",
+        "estimatedItemsPerRun": 25
+      },
+      "scheduleMinutes": 120,
+      "weight": 1
+    },
+    {
+      "id": "ai-infra-openalex",
+      "name": "OpenAlex — AI infrastructure and energy (optional key)",
+      "kind": "openalex",
+      "config": {
+        "query": "artificial intelligence data center energy power grid GPU cluster",
+        "limit": 35,
+        "sort": "publication_date:desc",
+        "evidenceRole": "independent",
+        "estimatedItemsPerRun": 20
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.9
+    },
+    {
+      "id": "ai-infra-arxiv",
+      "name": "arXiv — systems and energy",
+      "kind": "arxiv",
+      "config": {
+        "query": "data center energy AI infrastructure GPU cluster",
+        "limit": 25,
+        "sortBy": "submittedDate",
+        "evidenceRole": "independent",
+        "estimatedItemsPerRun": 20
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.85
+    },
+    {
+      "id": "ai-infra-tools",
+      "name": "Infrastructure tooling releases",
+      "kind": "github_releases",
+      "config": {
+        "repos": [
+          "duckdb/duckdb",
+          "OSGeo/gdal",
+          "qgis/QGIS"
+        ],
+        "perRepo": 3,
+        "evidenceRole": "context",
+        "estimatedItemsPerRun": 4
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.65
+    }
+  ],
+  "companionSources": [
+    {
+      "id": "ai-infra-reddit",
+      "name": "AI infrastructure practitioner discussions",
+      "kind": "collector",
+      "config": {
+        "operation": "reddit.search",
+        "args": {
+          "query": "AI data center power grid GPU infrastructure",
+          "limit": 50
+        },
+        "evidenceRole": "practitioner",
+        "estimatedItemsPerRun": 35
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.7
+    }
+  ],
+  "missions": [
+    {
+      "id": "ai-infrastructure-bottlenecks",
+      "name": "AI infrastructure bottlenecks",
+      "question": "Which power, grid, chip, siting, or financing constraint is becoming more binding for AI infrastructure?",
+      "terms": [
+        "data center",
+        "power",
+        "utility",
+        "transmission",
+        "interconnection",
+        "GPU",
+        "large load",
+        "electricity rate",
+        "financing"
+      ],
+      "sourceScope": [
+        "ai-infra-hn",
+        "ai-infra-openalex",
+        "ai-infra-arxiv"
+      ],
+      "status": "active",
+      "priority": 1.8,
+      "cadenceMinutes": 720,
+      "mode": "hypothesis",
+      "researchPolicy": "suggest",
+      "sprintPolicy": "scheduled",
+      "alertThreshold": 0.75,
+      "reminderLeadDays": 3
+    }
+  ],
+  "views": [
+    {
+      "id": "power-constraints",
+      "name": "Power constraints",
+      "query": "data center power utility transmission interconnection large load"
+    },
+    {
+      "id": "gpu-infrastructure",
+      "name": "GPU infrastructure",
+      "query": "GPU cluster AI infrastructure NVIDIA power cooling"
+    }
+  ],
+  "memory": {
+    "entities": [
+      {
+        "id": "data-center-power",
+        "type": "constraint",
+        "name": "Data-center power availability",
+        "importance": 0.95
+      },
+      {
+        "id": "grid-interconnection",
+        "type": "constraint",
+        "name": "Grid interconnection",
+        "importance": 0.9
+      },
+      {
+        "id": "gpu-supply",
+        "type": "constraint",
+        "name": "GPU supply",
+        "importance": 0.85
+      },
+      {
+        "id": "transmission-buildout",
+        "type": "infrastructure",
+        "name": "Transmission buildout",
+        "importance": 0.9
+      }
+    ],
+    "questions": [
+      {
+        "id": "binding-constraint",
+        "title": "Which constraint is currently binding in each major AI-infrastructure market?",
+        "importance": 0.95
+      },
+      {
+        "id": "household-rate-impact",
+        "title": "Where is large-load growth changing household electricity rates or utility investment plans?",
+        "importance": 0.9
+      }
+    ],
+    "relations": [
+      {
+        "from": "grid-interconnection",
+        "to": "data-center-power",
+        "relation": "depends_on",
+        "weight": 0.9,
+        "confidence": 0.9
+      },
+      {
+        "from": "data-center-power",
+        "to": "transmission-buildout",
+        "relation": "depends_on",
+        "weight": 0.82,
+        "confidence": 0.85
+      },
+      {
+        "from": "gpu-supply",
+        "to": "data-center-power",
+        "relation": "related_to",
+        "weight": 0.65,
+        "confidence": 0.75
+      }
+    ],
+    "claims": [
+      {
+        "id": "constraints-are-market-specific",
+        "title": "AI infrastructure constraints must be evaluated by market and project stage",
+        "summary": "A national narrative can obscure local power, transmission, interconnection, equipment, siting, or financing bottlenecks.",
+        "confidence": 0.9,
+        "importance": 0.95
+      }
+    ],
+    "expectations": [
+      {
+        "id": "power-constraint-differentiates",
+        "title": "Power and grid constraints will increasingly differentiate AI infrastructure markets",
+        "summary": "Track utilities, transmission, interconnection, and large-load policy as leading indicators.",
+        "confidence": 0.76,
+        "importance": 0.9
+      }
+    ]
+  },
+  "reasoning": {
+    "skill": {
+      "name": "AI infrastructure constraint analyst",
+      "description": "Reason across projects, utilities, grid assets, chips, capital, and policy without conflating announced capacity with operational capacity.",
+      "instructions": "Keep facility, campus, market, and grid-region aggregation levels explicit. Separate announced, permitted, under-construction, energized, and operational status. Treat capacity figures as sourced claims with units and scope. Seek primary utility, regulatory, permitting, and company evidence before concluding that a constraint is binding."
+    },
+    "briefingContract": [
+      "material project or policy change",
+      "capacity and status",
+      "primary evidence",
+      "affected market or grid",
+      "constraint implication",
+      "next observable event"
+    ],
+    "researchPlaybooks": [
+      {
+        "id": "constraint-diagnosis",
+        "name": "Constraint diagnosis",
+        "task": "investigate",
+        "trigger": "Evidence suggests a market's bottleneck changed.",
+        "instructions": "Map the claimed bottleneck to project status, utility territory, generation, transmission, interconnection, financing, equipment, and permitting. State which link is actually evidenced as binding."
+      }
+    ],
+    "providerHints": {
+      "chatgpt": "Use Deep Research for regulatory dockets, utility filings, local permitting, and cross-market evidence expansion.",
+      "claude": "Use the Mission Computer for longitudinal source tables, structured comparisons, and data transformations.",
+      "grok": "Use social discovery for emerging site or power chatter but verify against filings, permits, and company disclosures."
+    },
+    "outputContract": [
+      "state the binding constraint by market",
+      "preserve units and project status",
+      "identify the next decision or filing"
+    ]
+  },
+  "budget": {
+    "profile": "free",
+    "maxSources": 5,
+    "browserMinutesPerDay": 0.5,
+    "workflowStepsPerDay": 516,
+    "projectedRunsPerDay": 15
+  },
+  "interestTerms": [
+    "data centers",
+    "AI infrastructure",
+    "power grid",
+    "utility",
+    "transmission",
+    "interconnection",
+    "GPU",
+    "electricity rates"
+  ],
+  "evidencePolicy": {
+    "minPrimarySources": 1,
+    "minIndependentSources": 2,
+    "maxDiscoveryShare": 0.3,
+    "maxEvidenceAgeHours": 720,
+    "preferredDomains": [
+      "github.com",
+      "arxiv.org",
+      "openalex.org"
+    ]
+  },
+  "routines": [
+    {
+      "id": "ai-infra-monitor",
+      "name": "AI infrastructure monitor",
+      "description": "Refresh the cloud evidence lanes, rebuild the bottleneck Mission, sync its Mission Computer, and checkpoint durable memory.",
+      "missionId": "ai-infrastructure-bottlenecks",
+      "enabled": true,
+      "scheduleMinutes": 720,
+      "budgetClass": "light",
+      "trigger": "scheduled",
+      "steps": [
+        {
+          "id": "refresh",
+          "action": "refresh-sources",
+          "runtime": "auto",
+          "sourceIds": [
+            "ai-infra-hn",
+            "ai-infra-openalex",
+            "ai-infra-arxiv",
+            "ai-infra-tools"
+          ]
+        },
+        {
+          "id": "ingest",
+          "action": "wait-for-ingest",
+          "waitSeconds": 45
+        },
+        {
+          "id": "match",
+          "action": "rebuild-mission",
+          "runtime": "worker"
+        },
+        {
+          "id": "room",
+          "action": "sync-computer",
+          "runtime": "computer",
+          "optional": true
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "runtime": "computer",
+          "args": {
+            "reason": "AI infrastructure Pack routine"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ai-infra-decision-brief",
+      "name": "Prepare infrastructure decision brief",
+      "description": "Compile an exact model-agnostic context receipt when a human wants to reason deeply.",
+      "missionId": "ai-infrastructure-bottlenecks",
+      "enabled": true,
+      "scheduleMinutes": null,
+      "budgetClass": "standard",
+      "trigger": "manual",
+      "steps": [
+        {
+          "id": "context",
+          "action": "compile-context",
+          "reasoningTask": "decision",
+          "target": "generic",
+          "args": {
+            "objective": "Which AI-infrastructure constraint is becoming most binding, and what evidence would change that conclusion?",
+            "tokenBudget": 22000
+          }
+        },
+        {
+          "id": "research",
+          "action": "prepare-research",
+          "optional": true
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "args": {
+            "reason": "Pre-decision memory checkpoint"
+          }
+        }
+      ]
+    }
+  ],
+  "lineage": {}
+}
