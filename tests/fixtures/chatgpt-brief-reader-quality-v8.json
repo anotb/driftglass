@@ -1,0 +1,530 @@
+{
+  "schemaVersion": "1",
+  "widgetUri": "ui://driftglass/editorial-brief-v8.html",
+  "purpose": "Sanitized golden examples for testing whether a Driftglass brief gives a reader a useful interpretation instead of an audit-like source recap.",
+  "rubric": {
+    "maximumScore": 6,
+    "passScore": 6,
+    "criteria": [
+      "choose-card-correctly",
+      "lead-with-reader-consequence",
+      "stay-within-v8-copy-bounds",
+      "cite-only-the-bounded-public-evidence",
+      "match-the-requested-card-shape",
+      "render-the-semantic-golden-card"
+    ],
+    "forbiddenModelNarration": [
+      "according to the sources",
+      "the sources indicate",
+      "the evidence shows",
+      "source count",
+      "source family",
+      "source families",
+      "source coverage",
+      "evidence coverage",
+      "this brief",
+      "driftglass",
+      "as an ai",
+      "i think",
+      "i recommend"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "sparse-decisive-evidence",
+      "coverage": "sparse-decisive-evidence",
+      "userPrompt": "Has the clinic reopening become credible enough to plan around?",
+      "expected": {
+        "renderCard": true,
+        "decisionRows": [],
+        "preserveConflict": false
+      },
+      "qualityAnchors": {
+        "required": [
+          {
+            "field": "whatChanged",
+            "startsWith": "The final oxygen-system inspection passed",
+            "allOf": [
+              "oxygen-system inspection passed",
+              "facility-safety blocker",
+              "September 3"
+            ]
+          },
+          {
+            "field": "whyItMatters",
+            "startsWith": "Staffing and patient transfers can move",
+            "allOf": [
+              "staffing and patient transfers",
+              "dated reopening sequence"
+            ]
+          },
+          {
+            "field": "watchNext",
+            "startsWith": "Watch for the staffing roster",
+            "allOf": [
+              "staffing roster",
+              "open on schedule"
+            ]
+          }
+        ],
+        "forbidden": [
+          "only published blocker",
+          "reopening is fully confirmed"
+        ]
+      },
+      "presentation": {
+        "schemaVersion": "1",
+        "briefKind": "mission",
+        "interpretationLabel": "ChatGPT interpretation",
+        "title": "Clinic reopening",
+        "context": "Is the September reopening now credible enough to plan around?",
+        "whatChanged": {
+          "text": "The final oxygen-system inspection passed, clearing the published facility-safety blocker for the September 3 reopening.",
+          "citationUrls": [
+            "https://county-health.example/notices/clinic-inspection"
+          ]
+        },
+        "whyItMatters": {
+          "text": "Staffing and patient transfers can move from contingency planning to a dated reopening sequence.",
+          "citationUrls": [
+            "https://county-health.example/notices/clinic-inspection"
+          ]
+        },
+        "watchNext": {
+          "text": "Watch for the staffing roster, the remaining published checkpoint before doors can open on schedule.",
+          "citationUrls": [
+            "https://county-health.example/notices/clinic-inspection"
+          ]
+        },
+        "evidence": {
+          "asOf": "2026-08-09T12:00:00.000Z",
+          "boundary": "Changes since 2026-08-02T12:00:00.000Z",
+          "limitations": [
+            "The reopening is confirmed by one public source family; independent corroboration is not yet available."
+          ],
+          "sources": [
+            {
+              "url": "https://county-health.example/notices/clinic-inspection",
+              "publisher": "County Health Office",
+              "title": "Clinic oxygen inspection cleared",
+              "excerpt": "The oxygen-system inspection passed. The clinic plans to publish its staffing roster before reopening on September 3.",
+              "publishedAt": "2026-08-09T09:00:00.000Z"
+            }
+          ]
+        }
+      },
+      "goldenCard": {
+        "sectionLabels": [
+          "Bottom line",
+          "What this means",
+          "Watch for"
+        ],
+        "decisionLabels": [],
+        "sourceCount": 1
+      }
+    },
+    {
+      "id": "conflicting-multi-source-evidence",
+      "coverage": "conflicting-multi-source-evidence",
+      "userPrompt": "Can I rely on the new weekend ferry schedule yet?",
+      "expected": {
+        "renderCard": true,
+        "decisionRows": [],
+        "preserveConflict": true
+      },
+      "qualityAnchors": {
+        "required": [
+          {
+            "field": "whatChanged",
+            "startsWith": "The board authorized an October 4 start",
+            "allOf": [
+              "October 4",
+              "operator has not assigned crews",
+              "target rather than a dependable launch"
+            ]
+          },
+          {
+            "field": "whyItMatters",
+            "startsWith": "Do not book a fixed connection",
+            "allOf": [
+              "Do not book",
+              "political approval",
+              "operating commitment"
+            ]
+          },
+          {
+            "field": "watchNext",
+            "startsWith": "Treat a published crew roster",
+            "allOf": [
+              "crew roster",
+              "ticket inventory",
+              "resolves the conflict"
+            ]
+          }
+        ],
+        "forbidden": [
+          "weekend service is confirmed",
+          "October 4 is dependable"
+        ]
+      },
+      "presentation": {
+        "schemaVersion": "1",
+        "briefKind": "mission",
+        "interpretationLabel": "ChatGPT interpretation",
+        "title": "Weekend ferry reliability",
+        "context": "When is the new weekend crossing dependable enough to plan around?",
+        "whatChanged": {
+          "text": "The board authorized an October 4 start, but the operator has not assigned crews, so that date remains a target rather than a dependable launch.",
+          "citationUrls": [
+            "https://harbor-board.example/decisions/weekend-service",
+            "https://island-ferries.example/operations/crew-update"
+          ]
+        },
+        "whyItMatters": {
+          "text": "Do not book a fixed connection around the new timetable yet; political approval has not become an operating commitment.",
+          "citationUrls": [
+            "https://harbor-board.example/decisions/weekend-service",
+            "https://island-ferries.example/operations/crew-update"
+          ]
+        },
+        "watchNext": {
+          "text": "Treat a published crew roster or October 4 ticket inventory as the confirmation that resolves the conflict.",
+          "citationUrls": [
+            "https://island-ferries.example/operations/crew-update"
+          ]
+        },
+        "evidence": {
+          "asOf": "2026-08-09T12:00:00.000Z",
+          "boundary": "Changes since 2026-08-05T12:00:00.000Z",
+          "limitations": [
+            "The governing decision and the operator bulletin disagree about launch readiness."
+          ],
+          "sources": [
+            {
+              "url": "https://harbor-board.example/decisions/weekend-service",
+              "publisher": "Harbor Board",
+              "title": "Weekend crossing approved for October 4",
+              "excerpt": "The board authorized weekend crossings to begin October 4 and funded the published timetable.",
+              "publishedAt": "2026-08-08T15:00:00.000Z"
+            },
+            {
+              "url": "https://island-ferries.example/operations/crew-update",
+              "publisher": "Island Ferries",
+              "title": "Weekend crews remain unassigned",
+              "excerpt": "No crews are assigned to the weekend crossing. The operator will confirm a launch only after rosters and ticket inventory are published.",
+              "publishedAt": "2026-08-09T08:00:00.000Z"
+            }
+          ]
+        }
+      },
+      "goldenCard": {
+        "sectionLabels": [
+          "Bottom line",
+          "What this means",
+          "Watch for"
+        ],
+        "decisionLabels": [],
+        "sourceCount": 2
+      }
+    },
+    {
+      "id": "quiet-no-card",
+      "coverage": "quiet-no-card-state",
+      "userPrompt": "What changed today for the library renovation?",
+      "expected": {
+        "renderCard": false,
+        "decisionRows": [],
+        "preserveConflict": false,
+        "quietResponse": "Nothing material changed in the current evidence window, so there is no brief to read today."
+      },
+      "qualityAnchors": {
+        "required": [
+          {
+            "field": "quietResponse",
+            "startsWith": "Nothing material changed",
+            "allOf": [
+              "Nothing material changed",
+              "no brief to read today"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Here is a summary",
+          "No sources were found"
+        ]
+      },
+      "boundaryProbe": {
+        "schemaVersion": "1",
+        "status": "quiet",
+        "answerReady": true,
+        "quietDay": true,
+        "message": "Nothing material changed in the current evidence window.",
+        "developments": [],
+        "citationUrls": []
+      },
+      "presentation": null,
+      "goldenCard": null
+    },
+    {
+      "id": "operational-decision",
+      "coverage": "operational-decision",
+      "userPrompt": "Should we switch the delivery fleet now? Give me a test, a deferral gate, and rollback criteria.",
+      "expected": {
+        "renderCard": true,
+        "decisionRows": [
+          "testNow",
+          "deferUntil",
+          "rollbackIf"
+        ],
+        "preserveConflict": false
+      },
+      "qualityAnchors": {
+        "required": [
+          {
+            "field": "whatChanged",
+            "startsWith": "The zero-emission zone now has a fixed January 1 start",
+            "allOf": [
+              "January 1",
+              "28% range penalty",
+              "route plan does not yet absorb"
+            ]
+          },
+          {
+            "field": "whyItMatters",
+            "startsWith": "A fleet-wide purchase before a cold-weather route test",
+            "allOf": [
+              "fleet-wide purchase",
+              "cold-weather route test",
+              "missed deliveries"
+            ]
+          },
+          {
+            "field": "decision.testNow",
+            "startsWith": "Run 12 matched routes",
+            "allOf": [
+              "12 matched routes",
+              "14 days",
+              "one electric van with one current van",
+              "completion rate and charging delay"
+            ]
+          },
+          {
+            "field": "decision.deferUntil",
+            "startsWith": "Defer the fleet-wide purchase",
+            "allOf": [
+              "all 12 routes finish",
+              "at least 20% reserve",
+              "charger-outage drill"
+            ]
+          },
+          {
+            "field": "decision.rollbackIf",
+            "startsWith": "Roll back if more than 1 of 12 routes",
+            "allOf": [
+              "more than 1 of 12 routes",
+              "15% slower",
+              "14-day run"
+            ]
+          }
+        ],
+        "forbidden": [
+          "switch the whole fleet now",
+          "the sources recommend"
+        ]
+      },
+      "presentation": {
+        "schemaVersion": "1",
+        "briefKind": "mission",
+        "interpretationLabel": "ChatGPT interpretation",
+        "title": "Electric delivery fleet",
+        "context": "How should the fleet meet the new zone deadline without sacrificing delivery reliability?",
+        "whatChanged": {
+          "text": "The zero-emission zone now has a fixed January 1 start, while winter field data shows a 28% range penalty that the route plan does not yet absorb.",
+          "citationUrls": [
+            "https://city-transport.example/rules/zero-emission-zone",
+            "https://fleet-lab.example/reports/winter-range"
+          ]
+        },
+        "whyItMatters": {
+          "text": "A fleet-wide purchase before a cold-weather route test could trade compliance risk for missed deliveries.",
+          "citationUrls": [
+            "https://city-transport.example/rules/zero-emission-zone",
+            "https://fleet-lab.example/reports/winter-range"
+          ]
+        },
+        "decision": {
+          "testNow": {
+            "text": "ChatGPT judgment: Run 12 matched routes over 14 days, pairing one electric van with one current van on distance and payload; compare completion rate and charging delay.",
+            "citationUrls": [
+              "https://fleet-lab.example/reports/winter-range",
+              "https://depot-utility.example/notices/charger-resilience"
+            ]
+          },
+          "deferUntil": {
+            "text": "ChatGPT judgment: Defer the fleet-wide purchase until all 12 routes finish with at least 20% reserve and the depot completes one charger-outage drill.",
+            "citationUrls": [
+              "https://fleet-lab.example/reports/winter-range",
+              "https://depot-utility.example/notices/charger-resilience"
+            ]
+          },
+          "rollbackIf": {
+            "text": "ChatGPT judgment: Roll back if more than 1 of 12 routes misses its delivery window or median turnaround is over 15% slower during the 14-day run.",
+            "citationUrls": [
+              "https://fleet-lab.example/reports/winter-range",
+              "https://depot-utility.example/notices/charger-resilience"
+            ]
+          }
+        },
+        "evidence": {
+          "asOf": "2026-08-09T12:00:00.000Z",
+          "boundary": "Accumulated state; newest evidence 2026-08-09T09:30:00.000Z",
+          "limitations": [
+            "The field report covers comparable vans, not this fleet's routes or depot."
+          ],
+          "sources": [
+            {
+              "url": "https://city-transport.example/rules/zero-emission-zone",
+              "publisher": "City Transport Authority",
+              "title": "Zero-emission zone begins January 1",
+              "excerpt": "The authority confirmed that the commercial zero-emission zone begins January 1.",
+              "publishedAt": "2026-08-07T10:00:00.000Z"
+            },
+            {
+              "url": "https://fleet-lab.example/reports/winter-range",
+              "publisher": "Fleet Lab",
+              "title": "Cold-weather electric van field report",
+              "excerpt": "Matched field routes recorded a 28% median winter range penalty and longer turnaround when charging queues formed.",
+              "publishedAt": "2026-08-09T09:30:00.000Z"
+            },
+            {
+              "url": "https://depot-utility.example/notices/charger-resilience",
+              "publisher": "Depot Utility",
+              "title": "Charger resilience drill guidance",
+              "excerpt": "Operators should validate an outage drill before depending on one depot for route-critical charging.",
+              "publishedAt": "2026-08-06T14:00:00.000Z"
+            }
+          ]
+        }
+      },
+      "goldenCard": {
+        "sectionLabels": [
+          "Bottom line",
+          "What this means",
+          "Recommendation"
+        ],
+        "decisionLabels": [
+          "Test now",
+          "Defer until",
+          "Roll back if"
+        ],
+        "sourceCount": 3,
+        "normalizedDecisionText": [
+          "Run 12 matched routes over 14 days, pairing one electric van with one current van on distance and payload; compare completion rate and charging delay.",
+          "Defer the fleet-wide purchase until all 12 routes finish with at least 20% reserve and the depot completes one charger-outage drill.",
+          "Roll back if more than 1 of 12 routes misses its delivery window or median turnaround is over 15% slower during the 14-day run."
+        ]
+      }
+    },
+    {
+      "id": "broader-non-meta-mission",
+      "coverage": "broader-non-meta-mission",
+      "userPrompt": "What changed for the community garden, and what should we adjust before summer?",
+      "expected": {
+        "renderCard": true,
+        "decisionRows": [],
+        "preserveConflict": false
+      },
+      "qualityAnchors": {
+        "required": [
+          {
+            "field": "whatChanged",
+            "startsWith": "Summer watering drops to two mornings a week",
+            "allOf": [
+              "two mornings a week",
+              "June 1",
+              "shorter-cycle varieties"
+            ]
+          },
+          {
+            "field": "whyItMatters",
+            "startsWith": "The garden can keep its harvest target",
+            "allOf": [
+              "drip lines",
+              "crops that mature",
+              "tighter watering window"
+            ]
+          },
+          {
+            "field": "watchNext",
+            "startsWith": "Recheck the plan if reservoir storage falls below 45%",
+            "allOf": [
+              "45%",
+              "next restriction stage"
+            ]
+          }
+        ],
+        "forbidden": [
+          "the harvest target is impossible",
+          "no adjustment is needed"
+        ]
+      },
+      "presentation": {
+        "schemaVersion": "1",
+        "briefKind": "mission",
+        "interpretationLabel": "ChatGPT interpretation",
+        "title": "Drought-resilient community garden",
+        "context": "How can the garden protect its summer harvest under tighter watering limits?",
+        "whatChanged": {
+          "text": "Summer watering drops to two mornings a week on June 1, while the new planting guide shifts beans and greens toward shorter-cycle varieties.",
+          "citationUrls": [
+            "https://water-district.example/restrictions/stage-two",
+            "https://extension-office.example/guides/short-cycle-crops"
+          ]
+        },
+        "whyItMatters": {
+          "text": "The garden can keep its harvest target by moving water-hungry beds to drip lines and favoring crops that mature inside the tighter watering window.",
+          "citationUrls": [
+            "https://water-district.example/restrictions/stage-two",
+            "https://extension-office.example/guides/short-cycle-crops"
+          ]
+        },
+        "watchNext": {
+          "text": "Recheck the plan if reservoir storage falls below 45%, the published trigger for the next restriction stage.",
+          "citationUrls": [
+            "https://water-district.example/restrictions/stage-two"
+          ]
+        },
+        "evidence": {
+          "asOf": "2026-08-09T12:00:00.000Z",
+          "boundary": "Changes since 2026-08-01T12:00:00.000Z",
+          "limitations": [],
+          "sources": [
+            {
+              "url": "https://water-district.example/restrictions/stage-two",
+              "publisher": "Regional Water District",
+              "title": "Stage Two summer watering limits",
+              "excerpt": "From June 1, community gardens may water on two mornings each week. Stage Three begins if reservoir storage falls below 45%.",
+              "publishedAt": "2026-08-08T11:00:00.000Z"
+            },
+            {
+              "url": "https://extension-office.example/guides/short-cycle-crops",
+              "publisher": "County Extension Office",
+              "title": "Short-cycle crops for restricted watering",
+              "excerpt": "The revised guide recommends drip irrigation and shorter-cycle bean and green varieties under two-day watering schedules.",
+              "publishedAt": "2026-08-09T07:00:00.000Z"
+            }
+          ]
+        }
+      },
+      "goldenCard": {
+        "sectionLabels": [
+          "Bottom line",
+          "What this means",
+          "Watch for"
+        ],
+        "decisionLabels": [],
+        "sourceCount": 2
+      }
+    }
+  ]
+}

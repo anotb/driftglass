@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "contentDigest": "sha256:e3fc7b2d1d6e620b0279df4d6a994c448d70fbd90f48bfc7ae00d974e626a203",
+  "lenses": [
+    {
+      "id": "ai-infrastructure",
+      "name": "AI Infrastructure & Power",
+      "description": "Data centers, chips, power systems, utilities, transmission, and the infrastructure constraints behind frontier AI.",
+      "author": "Driftglass contributors",
+      "category": "Infrastructure",
+      "icon": "⌁",
+      "featured": false,
+      "requiresCompanion": false,
+      "sourceCount": 3,
+      "missionCount": 1,
+      "installUrl": "/lenses/ai-infrastructure.json",
+      "lens": {
+        "$schema": "../schema.json",
+        "driftglassLens": "1",
+        "id": "ai-infrastructure",
+        "name": "AI Infrastructure & Power",
+        "description": "Data centers, chips, power systems, utilities, transmission, and the infrastructure constraints behind frontier AI.",
+        "author": "Driftglass contributors",
+        "category": "Infrastructure",
+        "icon": "⌁",
+        "interestTerms": [
+          "data center",
+          "AI infrastructure",
+          "power grid",
+          "utility",
+          "transmission",
+          "interconnection",
+          "GPU",
+          "NVIDIA"
+        ],
+        "sources": [
+          {
+            "id": "lens-ai-infra-hn",
+            "name": "Hacker News — AI infrastructure",
+            "kind": "hackernews",
+            "config": {
+              "feed": "best",
+              "limit": 70,
+              "minScore": 12,
+              "watchTerms": [
+                "data center",
+                "power grid",
+                "electricity",
+                "GPU",
+                "NVIDIA",
+                "transmission"
+              ]
+            },
+            "scheduleMinutes": 90,
+            "weight": 1.05
+          },
+          {
+            "id": "lens-ai-infra-openalex",
+            "name": "OpenAlex — AI infrastructure & energy (optional key)",
+            "kind": "openalex",
+            "config": {
+              "query": "artificial intelligence data center energy power grid GPU cluster",
+              "limit": 35,
+              "sort": "publication_date:desc"
+            },
+            "scheduleMinutes": 720,
+            "weight": 0.9
+          },
+          {
+            "id": "lens-ai-infra-github",
+            "name": "Infrastructure tooling activity",
+            "kind": "github_activity",
+            "config": {
+              "repos": [
+                "cloudflare/workers-sdk",
+                "duckdb/duckdb",
+                "OSGeo/gdal",
+                "qgis/QGIS"
+              ],
+              "perRepo": 30,
+              "includeTypes": [
+                "PullRequestEvent",
+                "IssuesEvent",
+                "ReleaseEvent"
+              ]
+            },
+            "scheduleMinutes": 240,
+            "weight": 0.8
+          }
+        ],
+        "missions": [
+          {
+            "id": "mission-ai-infra-bottlenecks",
+            "name": "AI infrastructure bottlenecks",
+            "question": "Which power, grid, chip, siting, or financing constraint is becoming more binding for AI infrastructure?",
+            "terms": [
+              "data center",
+              "power",
+              "utility",
+              "transmission",
+              "interconnection",
+              "GPU",
+              "large load",
+              "electricity rate"
+            ],
+            "status": "active",
+            "priority": 1.7,
+            "cadenceMinutes": 720
+          }
+        ]
+      }
+    },
+    {
+      "id": "cloudflare-agent-week-community",
+      "name": "Cloudflare Agent Week",
+      "description": "Official launches, package releases, implementation chatter, and a standing Mission for practical experiments.",
+      "author": "Driftglass contributors",
+      "category": "Agent infrastructure",
+      "icon": "⚡",
+      "featured": false,
+      "requiresCompanion": false,
+      "sourceCount": 2,
+      "missionCount": 1,
+      "installUrl": "/lenses/cloudflare-agent-week-community.json",
+      "lens": {
+        "$schema": "../schema.json",
+        "driftglassLens": "1",
+        "id": "cloudflare-agent-week-community",
+        "name": "Cloudflare Agent Week",
+        "description": "Official launches, package releases, implementation chatter, and a standing Mission for practical experiments.",
+        "author": "Driftglass contributors",
+        "category": "Agent infrastructure",
+        "icon": "⚡",
+        "interestTerms": [
+          "Kitesurf",
+          "Cloudflare Computer",
+          "Cloudflare Computer",
+          "Agents SDK",
+          "MCP",
+          "AI Search",
+          "WebMCP"
+        ],
+        "sources": [
+          {
+            "id": "lens-cloudflare-blog",
+            "name": "Cloudflare Agent Week posts",
+            "kind": "web_feed",
+            "config": {
+              "url": "https://blog.cloudflare.com/tag/agents-week/",
+              "renderStrategy": "adaptive",
+              "articleRenderStrategy": "direct",
+              "maxLinks": 30,
+              "maxArticles": 10,
+              "fetchArticles": true
+            },
+            "scheduleMinutes": 120,
+            "weight": 1.5
+          },
+          {
+            "id": "lens-cloudflare-github",
+            "name": "Cloudflare agent stack releases",
+            "kind": "github_releases",
+            "config": {
+              "repos": [
+                "cloudflare/agents",
+                "cloudflare/computer",
+                "cloudflare/playwright",
+                "cloudflare/sandbox-sdk",
+                "cloudflare/workers-sdk"
+              ],
+              "perRepo": 5,
+              "includePrereleases": true
+            },
+            "scheduleMinutes": 120,
+            "weight": 1.4
+          }
+        ],
+        "missions": [
+          {
+            "id": "mission-cloudflare-agent-week",
+            "name": "Cloudflare Agent Week adoption",
+            "question": "Which Cloudflare agent launches create a practical new workflow worth testing?",
+            "terms": [
+              "Kitesurf",
+              "Cloudflare Computer",
+              "Cloudflare Computer",
+              "Agents SDK",
+              "MCP",
+              "AI Search",
+              "WebMCP"
+            ],
+            "status": "active",
+            "priority": 1.8,
+            "cadenceMinutes": 360
+          }
+        ]
+      }
+    },
+    {
+      "id": "coding-agents",
+      "name": "Coding Agents",
+      "description": "High-signal releases, live repository activity, papers, and community discussion across Codex, Claude Code, MCP, and agent development tooling.",
+      "author": "Driftglass contributors",
+      "category": "Developer tools",
+      "icon": "⌘",
+      "featured": false,
+      "requiresCompanion": false,
+      "sourceCount": 4,
+      "missionCount": 1,
+      "installUrl": "/lenses/coding-agents.json",
+      "lens": {
+        "$schema": "../schema.json",
+        "driftglassLens": "1",
+        "id": "coding-agents",
+        "name": "Coding Agents",
+        "description": "High-signal releases, live repository activity, papers, and community discussion across Codex, Claude Code, MCP, and agent development tooling.",
+        "author": "Driftglass contributors",
+        "category": "Developer tools",
+        "icon": "⌘",
+        "interestTerms": [
+          "Codex",
+          "Claude Code",
+          "coding agent",
+          "MCP",
+          "agent memory",
+          "context engineering",
+          "computer use"
+        ],
+        "sources": [
+          {
+            "id": "lens-coding-agents-releases",
+            "name": "Coding-agent releases",
+            "kind": "github_releases",
+            "config": {
+              "repos": [
+                "openai/codex",
+                "anthropics/claude-code",
+                "modelcontextprotocol/typescript-sdk",
+                "jackwener/OpenCLI",
+                "cloudflare/agents"
+              ],
+              "perRepo": 5,
+              "includePrereleases": true
+            },
+            "scheduleMinutes": 120,
+            "weight": 1.4
+          },
+          {
+            "id": "lens-coding-agents-activity",
+            "name": "Coding-agent live activity",
+            "kind": "github_activity",
+            "config": {
+              "repos": [
+                "openai/codex",
+                "anthropics/claude-code",
+                "modelcontextprotocol/typescript-sdk",
+                "jackwener/OpenCLI"
+              ],
+              "perRepo": 50,
+              "includeTypes": [
+                "PullRequestEvent",
+                "PullRequestReviewEvent",
+                "IssuesEvent",
+                "IssueCommentEvent",
+                "ReleaseEvent"
+              ]
+            },
+            "scheduleMinutes": 90,
+            "weight": 1.15
+          },
+          {
+            "id": "lens-coding-agents-hn",
+            "name": "Hacker News — coding agents",
+            "kind": "hackernews",
+            "config": {
+              "feed": "best",
+              "limit": 60,
+              "minScore": 10,
+              "watchTerms": [
+                "codex",
+                "claude code",
+                "coding agent",
+                "mcp",
+                "computer use"
+              ]
+            },
+            "scheduleMinutes": 60,
+            "weight": 1
+          },
+          {
+            "id": "lens-coding-agents-openalex",
+            "name": "OpenAlex — coding agents (optional key)",
+            "kind": "openalex",
+            "config": {
+              "query": "coding agents software engineering language models computer use",
+              "limit": 35,
+              "sort": "publication_date:desc"
+            },
+            "scheduleMinutes": 360,
+            "weight": 0.95
+          }
+        ],
+        "missions": [
+          {
+            "id": "mission-coding-agent-workflow",
+            "name": "Coding-agent workflow improvements",
+            "question": "What changed that can materially improve my coding-agent workflow this week?",
+            "terms": [
+              "Codex",
+              "Claude Code",
+              "coding agent",
+              "MCP",
+              "agent memory",
+              "context engineering",
+              "IDE integration"
+            ],
+            "status": "active",
+            "priority": 1.9,
+            "cadenceMinutes": 360
+          }
+        ]
+      }
+    }
+  ]
+}

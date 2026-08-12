@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Driftglass">
+  <rect width="512" height="512" rx="116" fill="#10131a"/>
+  <path d="M256 80 285 214 432 256 285 298 256 432 227 298 80 256 227 214Z" fill="#f4f2ed"/>
+  <circle cx="256" cy="256" r="38" fill="#10131a"/>
+  <circle cx="256" cy="256" r="17" fill="#f4f2ed"/>
+</svg>

@@ -1,0 +1,41 @@
+{
+  "name": "Driftglass Personal Intelligence",
+  "short_name": "Driftglass",
+  "description": "Catch what matters before it drifts past.",
+  "id": "/",
+  "start_url": "/#today",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f2ed",
+  "theme_color": "#10131a",
+  "icons": [
+    {
+      "src": "/icons/driftglass-mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Capture a signal",
+      "short_name": "Capture",
+      "url": "/#capture"
+    },
+    {
+      "name": "Research Missions",
+      "short_name": "Missions",
+      "url": "/#missions"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "enctype": "application/x-www-form-urlencoded",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

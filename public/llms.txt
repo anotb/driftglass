@@ -1,0 +1,58 @@
+# Driftglass 0.9.0
+
+Driftglass follows standing questions. It collects chosen sources, joins repeated coverage into developing Stories, keeps a current answer and history for each Research Mission, and prepares source-linked work for the reasoning model a person chooses.
+
+## Start here
+
+- Installation: `/install.md`
+- Full agent guide: `/llms-full.txt`
+- Research MCP with OAuth: `/mcp`
+- OpenAPI: `/openapi.json`
+- MCP card: `/.well-known/mcp.json`
+- Product card: `/.well-known/driftglass.json`
+- Agent card: `/.well-known/agent.json`
+
+## Research connection
+
+Use the read-only Research MCP for briefings, investigation, Mission answers, and memory recall.
+
+- `brief_today`: changed questions and Stories worth attention
+- `brief_mission`: source material for one standing question
+- `present_brief`: show a cited answer from a fresh Today or Mission brief
+- `next_reasoning_task`: next prepared question
+- `prepare_context`: broader public-source context
+- `prepare_personal_context`: include connected personal sources when explicitly requested
+- `search` and `fetch`: inspect wider or underlying material
+- `get_mission`, `recall_memory`, and `compare_memory`: current and earlier Mission state
+
+For a Mission answer, state the conclusion first. Explain the causes and cite the claims. Include a contrary case or watch signal only when it adds information. Do not turn tool output into a changelog or source-count summary.
+
+## Allow updates
+
+State changes use `/mcp/{private-operations-key}/ops`. This connection can save answers, decisions, Mission runs, Pack changes, Computer notes, and memory proposals. Its capability is independent from the Research connection; copy the full address from the owner dashboard.
+
+## How Driftglass is organized
+
+- canonical connected memory: bounded D1 temporal graph
+- Mission workspace: one Cloudflare Computer per Mission
+- source-state receipts and saved model results: R2
+- scheduled research: bounded Cloudflare Workflows
+- optional semantic retrieval: AI Search, enabled by the owner
+- optional signed-in sources and local workspace mirror: Companion
+
+## Intelligence Packs
+
+- Catalog: `/intelligence-packs/catalog.json`
+- Schema: `/intelligence-packs/schema.json`
+- Cloud-only sources form the default install lane.
+- Packs may add Missions, starter memory, source standards, routines, answer instructions, and budgets.
+- Personal changes live in overlays and can be exported with the combined setup as a Pack fork.
+
+## Other reading surfaces
+
+- Daily packet: `/packet/{private-read-key}/latest.md`
+- Pulse packet: `/packet/{private-read-key}/pulse.md`
+- Mission packet: `/packet/{private-read-key}/mission/{mission-id}.md`
+- What needs attention: `/api/judgment`
+- Decisions and forecasts: `/api/decisions`
+- Connected memory: `/api/memory`

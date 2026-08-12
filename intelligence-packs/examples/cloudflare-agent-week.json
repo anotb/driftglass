@@ -1,0 +1,370 @@
+{
+  "$schema": "../schema.json",
+  "driftglassPack": "3",
+  "id": "cloudflare-agent-week",
+  "version": "3.0.0",
+  "name": "Cloudflare Agent Week",
+  "description": "A cloud-first radar for Cloudflare's agent runtime, browser, Computer, Workers, MCP, and developer-platform launches, with optional signed-in social discovery.",
+  "author": "Driftglass contributors",
+  "category": "Agent infrastructure",
+  "icon": "\u26a1",
+  "featured": true,
+  "cloudSources": [
+    {
+      "id": "cf-agent-week-blog",
+      "name": "Cloudflare Agent Week posts",
+      "kind": "web_feed",
+      "config": {
+        "url": "https://blog.cloudflare.com/tag/agents-week/",
+        "renderStrategy": "adaptive",
+        "articleRenderStrategy": "direct",
+        "maxLinks": 30,
+        "maxArticles": 8,
+        "fetchArticles": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 8
+      },
+      "scheduleMinutes": 180,
+      "weight": 1.5
+    },
+    {
+      "id": "cf-agent-stack-releases",
+      "name": "Cloudflare agent stack releases",
+      "kind": "github_releases",
+      "config": {
+        "repos": [
+          "cloudflare/agents",
+          "cloudflare/computer",
+          "cloudflare/workers-sdk",
+          "cloudflare/playwright"
+        ],
+        "perRepo": 4,
+        "includePrereleases": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 4
+      },
+      "scheduleMinutes": 180,
+      "weight": 1.4
+    },
+    {
+      "id": "cf-agent-stack-activity",
+      "name": "Cloudflare agent stack activity",
+      "kind": "github_activity",
+      "config": {
+        "repos": [
+          "cloudflare/agents",
+          "cloudflare/computer",
+          "cloudflare/workers-sdk"
+        ],
+        "perRepo": 30,
+        "includeTypes": [
+          "PullRequestEvent",
+          "IssuesEvent",
+          "ReleaseEvent"
+        ],
+        "evidenceRole": "authoritative",
+        "estimatedItemsPerRun": 15
+      },
+      "scheduleMinutes": 360,
+      "weight": 1.05
+    },
+    {
+      "id": "cf-agent-packages",
+      "name": "Cloudflare agent package releases",
+      "kind": "npm_releases",
+      "config": {
+        "packages": [
+          "agents",
+          "@cloudflare/computer",
+          "wrangler",
+          "@cloudflare/playwright"
+        ],
+        "includePrereleases": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 5
+      },
+      "scheduleMinutes": 360,
+      "weight": 1.25
+    }
+  ],
+  "companionSources": [
+    {
+      "id": "cf-agent-week-x",
+      "name": "Cloudflare Agent Week on X",
+      "kind": "collector",
+      "config": {
+        "operation": "x.search",
+        "args": {
+          "query": "Cloudflare (Computer OR Kitesurf OR Agents SDK OR Workers)",
+          "limit": 50
+        },
+        "evidenceRole": "discovery",
+        "estimatedItemsPerRun": 35
+      },
+      "scheduleMinutes": 360,
+      "weight": 0.9
+    }
+  ],
+  "missions": [
+    {
+      "id": "cloudflare-agent-adoption",
+      "name": "Cloudflare agent adoption",
+      "question": "Which Cloudflare agent launch creates a practical workflow worth adopting now, and what evidence would change that judgment?",
+      "terms": [
+        "Cloudflare Computer",
+        "Kitesurf",
+        "Agents SDK",
+        "Workers",
+        "MCP",
+        "Workflows",
+        "Browser Run"
+      ],
+      "sourceScope": [
+        "cf-agent-week-blog",
+        "cf-agent-stack-releases",
+        "cf-agent-stack-activity",
+        "cf-agent-packages"
+      ],
+      "status": "active",
+      "priority": 1.9,
+      "cadenceMinutes": 360,
+      "mode": "decision",
+      "researchPolicy": "suggest",
+      "sprintPolicy": "scheduled",
+      "alertThreshold": 0.72,
+      "reminderLeadDays": 1
+    }
+  ],
+  "views": [
+    {
+      "id": "cloudflare-agent-runtime",
+      "name": "Agent runtime",
+      "query": "Cloudflare Computer Kitesurf Agents SDK Workflows MCP"
+    }
+  ],
+  "memory": {
+    "entities": [
+      {
+        "id": "cloudflare-computer",
+        "type": "runtime",
+        "name": "Cloudflare Computer",
+        "aliases": [
+          "@cloudflare/computer"
+        ],
+        "description": "Durable agent workspace with a shared filesystem and optional execution backends.",
+        "importance": 0.9
+      },
+      {
+        "id": "kitesurf",
+        "type": "browser",
+        "name": "Kitesurf",
+        "description": "Browser execution for public JavaScript pages on Cloudflare Workers.",
+        "importance": 0.85
+      },
+      {
+        "id": "cloudflare-agents-sdk",
+        "type": "framework",
+        "name": "Cloudflare Agents SDK",
+        "aliases": [
+          "agents"
+        ],
+        "importance": 0.85
+      }
+    ],
+    "questions": [
+      {
+        "id": "production-readiness",
+        "title": "Which Agent Week capabilities are production-ready versus best kept as bounded experiments?",
+        "importance": 0.85
+      },
+      {
+        "id": "free-tier-fit",
+        "title": "Which architecture preserves the strongest agent capabilities within the Free or cheap Workers envelope?",
+        "importance": 0.9
+      }
+    ],
+    "relations": [
+      {
+        "from": "cloudflare-computer",
+        "to": "cloudflare-agents-sdk",
+        "relation": "related_to",
+        "weight": 0.8,
+        "confidence": 0.9,
+        "rationale": "Both participate in persistent Cloudflare agent applications."
+      },
+      {
+        "from": "kitesurf",
+        "to": "cloudflare-agents-sdk",
+        "relation": "related_to",
+        "weight": 0.7,
+        "confidence": 0.85,
+        "rationale": "Kitesurf provides a browser tool for Cloudflare-hosted agents."
+      }
+    ],
+    "claims": [
+      {
+        "id": "kitesurf-default-browser",
+        "title": "Kitesurf is the preferred lightweight public-page renderer",
+        "summary": "Use Kitesurf before Chromium when the page does not require a persistent signed-in browser session.",
+        "confidence": 0.82,
+        "importance": 0.9
+      }
+    ],
+    "expectations": [
+      {
+        "id": "agent-week-apis-evolve",
+        "title": "Agent Week preview APIs will continue to change before broad production maturity",
+        "summary": "Track release notes and implementation activity before locking deep integrations.",
+        "confidence": 0.78,
+        "importance": 0.82
+      }
+    ]
+  },
+  "reasoning": {
+    "skill": {
+      "name": "Cloudflare agent architecture",
+      "description": "Evaluate Cloudflare agent launches as an integrated architecture rather than isolated announcements.",
+      "instructions": "Separate generally available infrastructure, beta capability, and preview runtime. Prefer the smallest architecture that preserves the new capability. Compare direct HTTP, Kitesurf, Chromium, Computer filesystem, isolate execution, Workflows, and external reasoning surfaces by actual job-to-be-done."
+    },
+    "briefingContract": [
+      "what shipped",
+      "what is materially new",
+      "best practical use",
+      "maturity",
+      "cost or limit implication",
+      "one experiment worth running"
+    ],
+    "researchPlaybooks": [
+      {
+        "id": "architecture-decision",
+        "name": "Cloudflare architecture decision",
+        "task": "decision",
+        "trigger": "A new Cloudflare runtime changes an existing design choice.",
+        "instructions": "Compare the new path with the current Driftglass component. Preserve proven state, provenance, and retry boundaries unless the new capability subsumes them. State migration cost and rollback."
+      }
+    ],
+    "providerHints": {
+      "chatgpt": "Use Deep Research for current launch documentation and MCP for the private Driftglass history.",
+      "claude": "Use the Mission Computer files when reviewing code or architecture decisions.",
+      "grok": "Use social search for emerging implementation reports, but verify release facts against Cloudflare and repositories."
+    },
+    "outputContract": [
+      "recommend adopt, experiment, watch, or ignore",
+      "name the exact component boundary",
+      "state the next observable evidence"
+    ]
+  },
+  "budget": {
+    "profile": "free",
+    "maxSources": 5,
+    "browserMinutesPerDay": 1.5,
+    "workflowStepsPerDay": 1048,
+    "projectedRunsPerDay": 28
+  },
+  "interestTerms": [
+    "Cloudflare Computer",
+    "Kitesurf",
+    "Agents SDK",
+    "Workers",
+    "MCP",
+    "Workflows",
+    "AI Search"
+  ],
+  "evidencePolicy": {
+    "minPrimarySources": 2,
+    "minIndependentSources": 1,
+    "maxDiscoveryShare": 0.35,
+    "maxEvidenceAgeHours": 168,
+    "preferredDomains": [
+      "blog.cloudflare.com",
+      "developers.cloudflare.com",
+      "github.com",
+      "npmjs.com"
+    ]
+  },
+  "routines": [
+    {
+      "id": "cloudflare-agent-platform-monitor",
+      "name": "Cloudflare agent-platform monitor",
+      "description": "Refresh official releases, live repository activity, packages, and posts before updating the standing adoption Mission.",
+      "missionId": "cloudflare-agent-adoption",
+      "enabled": true,
+      "scheduleMinutes": 360,
+      "budgetClass": "light",
+      "trigger": "scheduled",
+      "steps": [
+        {
+          "id": "refresh",
+          "action": "refresh-sources",
+          "sourceIds": [
+            "cf-agent-week-blog",
+            "cf-agent-stack-releases",
+            "cf-agent-stack-activity",
+            "cf-agent-packages"
+          ]
+        },
+        {
+          "id": "ingest",
+          "action": "wait-for-ingest",
+          "waitSeconds": 45
+        },
+        {
+          "id": "match",
+          "action": "rebuild-mission"
+        },
+        {
+          "id": "room",
+          "action": "sync-computer",
+          "runtime": "computer",
+          "optional": true
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "args": {
+            "reason": "Cloudflare agent-platform checkpoint"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cloudflare-architecture-challenge",
+      "name": "Challenge the Cloudflare architecture thesis",
+      "description": "Prepare an adversarial context and Deep Research handoff without running a built-in model.",
+      "missionId": "cloudflare-agent-adoption",
+      "enabled": true,
+      "scheduleMinutes": null,
+      "budgetClass": "standard",
+      "trigger": "manual",
+      "steps": [
+        {
+          "id": "audit",
+          "action": "audit-memory"
+        },
+        {
+          "id": "context",
+          "action": "compile-context",
+          "reasoningTask": "challenge",
+          "target": "generic",
+          "args": {
+            "objective": "Challenge the current thesis that Cloudflare is the best substrate for this personal intelligence system. Identify regressions, alternatives, and a decisive next test.",
+            "tokenBudget": 24000
+          }
+        },
+        {
+          "id": "research",
+          "action": "prepare-research",
+          "optional": true
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "args": {
+            "reason": "Architecture challenge checkpoint"
+          }
+        }
+      ]
+    }
+  ],
+  "lineage": {}
+}

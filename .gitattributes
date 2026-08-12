@@ -1,0 +1,4 @@
+migrations/*.sql text eol=lf
+*.sha256 text eol=lf
+.internal export-ignore
+.internal/** export-ignore

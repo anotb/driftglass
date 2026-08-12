@@ -1,0 +1,112 @@
+{
+  "$schema": "../schema.json",
+  "driftglassLens": "1",
+  "id": "coding-agents",
+  "name": "Coding Agents",
+  "description": "High-signal releases, live repository activity, papers, and community discussion across Codex, Claude Code, MCP, and agent development tooling.",
+  "author": "Driftglass contributors",
+  "category": "Developer tools",
+  "icon": "⌘",
+  "interestTerms": [
+    "Codex",
+    "Claude Code",
+    "coding agent",
+    "MCP",
+    "agent memory",
+    "context engineering",
+    "computer use"
+  ],
+  "sources": [
+    {
+      "id": "lens-coding-agents-releases",
+      "name": "Coding-agent releases",
+      "kind": "github_releases",
+      "config": {
+        "repos": [
+          "openai/codex",
+          "anthropics/claude-code",
+          "modelcontextprotocol/typescript-sdk",
+          "jackwener/OpenCLI",
+          "cloudflare/agents"
+        ],
+        "perRepo": 5,
+        "includePrereleases": true
+      },
+      "scheduleMinutes": 120,
+      "weight": 1.4
+    },
+    {
+      "id": "lens-coding-agents-activity",
+      "name": "Coding-agent live activity",
+      "kind": "github_activity",
+      "config": {
+        "repos": [
+          "openai/codex",
+          "anthropics/claude-code",
+          "modelcontextprotocol/typescript-sdk",
+          "jackwener/OpenCLI"
+        ],
+        "perRepo": 50,
+        "includeTypes": [
+          "PullRequestEvent",
+          "PullRequestReviewEvent",
+          "IssuesEvent",
+          "IssueCommentEvent",
+          "ReleaseEvent"
+        ]
+      },
+      "scheduleMinutes": 90,
+      "weight": 1.15
+    },
+    {
+      "id": "lens-coding-agents-hn",
+      "name": "Hacker News — coding agents",
+      "kind": "hackernews",
+      "config": {
+        "feed": "best",
+        "limit": 60,
+        "minScore": 10,
+        "watchTerms": [
+          "codex",
+          "claude code",
+          "coding agent",
+          "mcp",
+          "computer use"
+        ]
+      },
+      "scheduleMinutes": 60,
+      "weight": 1
+    },
+    {
+      "id": "lens-coding-agents-openalex",
+      "name": "OpenAlex — coding agents (optional key)",
+      "kind": "openalex",
+      "config": {
+        "query": "coding agents software engineering language models computer use",
+        "limit": 35,
+        "sort": "publication_date:desc"
+      },
+      "scheduleMinutes": 360,
+      "weight": 0.95
+    }
+  ],
+  "missions": [
+    {
+      "id": "mission-coding-agent-workflow",
+      "name": "Coding-agent workflow improvements",
+      "question": "What changed that can materially improve my coding-agent workflow this week?",
+      "terms": [
+        "Codex",
+        "Claude Code",
+        "coding agent",
+        "MCP",
+        "agent memory",
+        "context engineering",
+        "IDE integration"
+      ],
+      "status": "active",
+      "priority": 1.9,
+      "cadenceMinutes": 360
+    }
+  ]
+}

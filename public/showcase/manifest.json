@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "2",
+  "buildVersion": "0.9.0",
+  "illustrative": {
+    "classification": "Illustrative example · public sources",
+    "publicSourcesAsOf": "2026-07-07",
+    "sourceUrls": [
+      "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary",
+      "https://www.eia.gov/todayinenergy/detail.php?id=67484",
+      "https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/",
+      "https://www.nature.com/articles/s41586-026-10644-y",
+      "https://www.nature.com/articles/s41586-026-10652-y"
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "hormuz-share.json",
+      "mediaType": "application/json",
+      "bytes": 5658,
+      "sha256": "26b8a88168a1fe932c7300d1494c46409f68641d745c75e15a2e98d93cf8cbd6"
+    },
+    {
+      "path": "hormuz-analysis.html",
+      "mediaType": "text/html",
+      "bytes": 10593,
+      "sha256": "8e51d2ed136a9f5a02208fb7a25a432b366007cd996a2508ad9e5f2c78378667"
+    },
+    {
+      "path": "hormuz-analysis.zip",
+      "mediaType": "application/zip",
+      "bytes": 29834,
+      "sha256": "2093d1419508dc0766dcb6f581d5ac49f0430fabbfe6db7979d804ce67c4a085"
+    },
+    {
+      "path": "01-today.png",
+      "mediaType": "image/png",
+      "bytes": 153513,
+      "sha256": "99b7a50ce332b7ebcfb049a253e6cc449f0f6899d000d5982f54ba13859bc67e",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "02-mission-computer.png",
+      "mediaType": "image/png",
+      "bytes": 182981,
+      "sha256": "07dea2bf02ac40299e42f00dbebc7fef63c5757128bfa000f11f95548717048a",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "03-final-answer.png",
+      "mediaType": "image/png",
+      "bytes": 130911,
+      "sha256": "784f34bf8ff1e8c55d6384f9bbfc37716dfb32768a8b3e0aef110354754c09df",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "04-public-card.png",
+      "mediaType": "image/png",
+      "bytes": 198076,
+      "sha256": "77a73ee8d949248bbbd4007d8b384c365dd8438823a7aca0b8ff98f8afa2db98",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "path": "architecture.svg",
+      "mediaType": "image/svg+xml",
+      "bytes": 6762,
+      "sha256": "2ba0665441c72fa549e8027f8122740ba86151388bc747ecfdd1bce12bdd6dc5",
+      "width": 1600,
+      "height": 1000
+    },
+    {
+      "path": "walkthrough.mp4",
+      "mediaType": "video/mp4",
+      "bytes": 1541675,
+      "sha256": "efae72a8a7e2dd5a98800ff7fdcad04b3ae3f16d7d94d91e93709831b6ff7b75",
+      "width": 1920,
+      "height": 1080,
+      "durationSeconds": 26.4,
+      "frameRate": 30,
+      "codec": "h264",
+      "pixelFormat": "yuv420p",
+      "audioCodec": "aac",
+      "audioProfile": "LC",
+      "audioSampleRate": 48000,
+      "audioChannels": 2,
+      "audioTitle": "Open Questions",
+      "audioSource": "original",
+      "audioLicense": "MIT"
+    }
+  ]
+}

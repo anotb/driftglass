@@ -1,0 +1,4267 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Driftglass API",
+    "version": "0.9.0",
+    "description": "Personal intelligence for standing questions: chosen sources become developing Stories, current cited answers, connected memory, decisions, forecasts, Intelligence Packs, and one workspace per Mission."
+  },
+  "components": {
+    "securitySchemes": {
+      "ownerSecret": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "SourceRunDispatch": {
+        "type": "object",
+        "required": ["ok", "runId", "count", "provider", "status"],
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "runId": { "type": "string" },
+          "count": { "type": "integer", "minimum": 0, "description": "Items accepted for Queue delivery, not a final ingested count." },
+          "provider": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["success", "partial", "failed", "queued", "pending"],
+            "description": "queued means collection is complete but durable per-item ingestion is still pending; terminal success/partial/failed appears in source-run history."
+          }
+        }
+      },
+      "SourceRunHistoryEntry": {
+        "type": "object",
+        "required": ["id", "started_at", "status", "item_count", "enqueued_count", "ingested_count", "duplicate_count", "failed_count"],
+        "properties": {
+          "id": { "type": "string" },
+          "started_at": { "type": "string", "format": "date-time" },
+          "collection_finished_at": { "type": ["string", "null"], "format": "date-time" },
+          "finished_at": { "type": ["string", "null"], "format": "date-time", "description": "Null while queued ingestion remains nonterminal." },
+          "status": { "type": "string", "enum": ["success", "partial", "failed", "queued", "pending", "running"] },
+          "item_count": { "type": "integer", "minimum": 0 },
+          "enqueued_count": { "type": "integer", "minimum": 0 },
+          "ingested_count": { "type": "integer", "minimum": 0 },
+          "duplicate_count": { "type": "integer", "minimum": 0 },
+          "failed_count": { "type": "integer", "minimum": 0 },
+          "collection_partial": { "type": "integer", "enum": [0, 1] },
+          "collection_health_delta": { "type": "number" },
+          "ingest_failed_attempts": { "type": "integer", "minimum": 0, "description": "Highest Queue retry count observed for the run; the initial delivery is zero retries." },
+          "ingest_updated_at": { "type": ["string", "null"], "format": "date-time" },
+          "last_ingest_error": { "type": ["string", "null"] },
+          "latency_ms": { "type": ["integer", "null"], "minimum": 0 },
+          "provider": { "type": ["string", "null"] },
+          "details_json": { "type": "string" }
+        }
+      },
+      "IngestDeadLetterSummary": {
+        "type": "object",
+        "description": "Content-free owner view of a D1 or emergency private-R2 recovery incident. The bounded private recovery body is never returned.",
+        "required": ["id", "queue_message_id", "queue_name", "attempts", "reason", "body_hash", "body_bytes", "status", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "queue_message_id": { "type": "string" },
+          "queue_name": { "type": "string" },
+          "source_id": { "type": ["string", "null"] },
+          "provider": { "type": ["string", "null"] },
+          "source_run_id": { "type": ["string", "null"] },
+          "source_run_item_index": { "type": ["integer", "null"], "minimum": 0 },
+          "attempts": { "type": "integer", "minimum": 0 },
+          "reason": { "type": "string" },
+          "body_hash": { "type": "string" },
+          "body_bytes": { "type": "integer", "minimum": 0 },
+          "status": { "type": "string", "enum": ["unresolved", "resolved", "ignored"] },
+          "created_at": { "type": "string", "format": "date-time" },
+          "resolved_at": { "type": ["string", "null"], "format": "date-time" },
+          "storage": { "type": "string", "enum": ["r2"], "description": "Present only for the emergency private-R2 fallback." }
+        }
+      },
+      "InboxReceiptSummary": {
+        "type": "object",
+        "description": "Owner-visible inbound Email receipt. Queue acceptance is not a substitute for polling the resulting Story as the durable-ingestion proof.",
+        "required": ["id", "source_id", "received_at", "last_received_at", "delivery_count", "item_count", "outcome", "queue_state", "metadata_json"],
+        "properties": {
+          "id": { "type": "string" },
+          "source_id": { "type": "string" },
+          "message_id": { "type": ["string", "null"] },
+          "sender": { "type": ["string", "null"] },
+          "recipient": { "type": ["string", "null"] },
+          "subject": { "type": ["string", "null"] },
+          "received_at": { "type": "string", "format": "date-time" },
+          "last_received_at": { "type": "string", "format": "date-time" },
+          "delivery_count": { "type": "integer", "minimum": 1 },
+          "item_count": { "type": "integer", "minimum": 0 },
+          "outcome": { "type": "string", "enum": ["queue-pending", "queued", "queued-unkeyed", "queue-failed", "duplicate-reused", "legacy-duplicate"] },
+          "queue_state": { "type": "string", "enum": ["pending", "queued", "failed", "unkeyed"] },
+          "metadata_json": { "type": "string", "description": "Bounded JSON metadata including attachment descriptors; attachment bodies are never stored." }
+        }
+      },
+      "EvidenceLineageRecord": {
+        "type": "object",
+        "required": ["item_id", "story_id", "family_key", "origin_item_id", "origin_family_key", "relation", "title_similarity", "body_similarity", "independent", "rationale", "created_at", "updated_at"],
+        "properties": {
+          "item_id": { "type": "string" },
+          "story_id": { "type": "string" },
+          "family_key": { "type": "string" },
+          "origin_item_id": { "type": ["string", "null"] },
+          "origin_family_key": { "type": ["string", "null"] },
+          "relation": { "type": "string", "enum": ["origin", "independent", "same-family", "echo", "update"] },
+          "title_similarity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "body_similarity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "independent": { "type": "integer", "enum": [0, 1] },
+          "rationale": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "EvidenceLineageSummary": {
+        "type": "object",
+        "required": ["relation", "independent", "count"],
+        "properties": {
+          "relation": { "type": "string", "enum": ["origin", "independent", "same-family", "echo", "update"] },
+          "independent": { "type": "integer", "enum": [0, 1] },
+          "count": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "PublicShareCreateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["story", "mission", "briefing"]
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required for a Story or Mission share; omit for a briefing."
+          },
+          "expiresDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 90,
+            "default": 14
+          },
+          "reviewedRunId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional reviewed reasoning run prepared for the same share scope."
+          }
+        }
+      },
+      "PublicSharePayload": {
+        "type": "object",
+        "required": ["schemaVersion", "publicEvidenceOnly", "kind", "title", "generatedAt", "stories"],
+        "properties": {
+          "schemaVersion": { "type": "string", "const": "2" },
+          "publicEvidenceOnly": { "type": "boolean", "const": true },
+          "kind": { "type": "string", "enum": ["story", "mission", "briefing"] },
+          "title": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "generatedAt": { "type": "string", "format": "date-time" },
+          "reviewedAnswer": { "type": "object" },
+          "stories": {
+            "type": "array",
+            "items": { "type": "object" }
+          },
+          "footer": { "type": "string" }
+        }
+      },
+      "PublicShareCreateResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok", "share"],
+        "properties": {
+          "ok": { "type": "boolean", "const": true },
+          "share": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "url", "dropUrl", "expiresAt", "payload"],
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "url": { "type": "string", "format": "uri" },
+              "dropUrl": { "type": "string", "format": "uri" },
+              "expiresAt": { "type": "string", "format": "date-time" },
+              "payload": { "$ref": "#/components/schemas/PublicSharePayload" }
+            }
+          }
+        }
+      },
+      "MissionMatchMaintenanceStart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "workflowId", "missionId"],
+        "properties": {
+          "status": { "type": "string", "const": "queued" },
+          "workflowId": { "type": "string" },
+          "missionId": { "type": "string" }
+        }
+      },
+      "MissionMatchMaintenanceComplete": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "missionId", "rebuild", "computer"],
+        "properties": {
+          "status": { "type": "string", "const": "complete" },
+          "missionId": { "type": "string" },
+          "rebuild": { "type": "object" },
+          "computer": { "type": "object" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/action-center": {
+      "get": {
+        "summary": "List owner actions across Mission cadence, expected events, research approvals, and degraded sources",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prioritized Action Center items"
+          }
+        }
+      }
+    },
+    "/api/ai-search/search": {
+      "post": {
+        "summary": "Search the optional semantic retrieval projection",
+        "description": "Runs Cloudflare AI Search hybrid vector and keyword retrieval with reranking and optional record-kind filtering. Returns AI_SEARCH_DISABLED until the owner explicitly runs setup.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "query"
+                ],
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 30
+                  },
+                  "threshold": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "story",
+                      "mission",
+                      "briefing"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "AI_SEARCH_DISABLED or AI_SEARCH_NOT_CONFIGURED; setup is required and no instance is created by this read"
+          }
+        }
+      }
+    },
+    "/api/ai-search/setup": {
+      "post": {
+        "summary": "Explicitly enable the optional AI Search retrieval projection",
+        "description": "The sole creation and enablement path. Creates or reconnects the Driftglass AI Search instance and persists owner opt-in; synchronization remains a separate explicit operation.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "AI Search is enabled and its named instance is configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai-search/status": {
+      "get": {
+        "summary": "Get optional AI Search retrieval status",
+        "description": "Returns binding availability, persisted owner enablement, instance configuration, indexing, and last-sync state as separate fields. This read never creates or enables an instance.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complete, partial, or deferred result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ai-search/sync": {
+      "post": {
+        "summary": "Synchronize optional AI Search documents from canonical Driftglass state",
+        "description": "Uploads changed Story, Mission, and briefing documents and deletes stale indexed items after explicit setup. Returns AI_SEARCH_DISABLED without scheduling work when setup has not run.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "force": {
+                    "type": "boolean"
+                  },
+                  "wait": {
+                    "type": "boolean",
+                    "description": "Wait for the final AI Search indexing operation and return its result instead of scheduling the sync."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Enabled synchronization was accepted for background execution"
+          },
+          "409": {
+            "description": "AI_SEARCH_DISABLED or AI_SEARCH_NOT_CONFIGURED; explicit setup is required"
+          }
+        }
+      }
+    },
+    "/api/autopilot": {
+      "get": {
+        "summary": "Inspect Mission Autopilot cadence and next Sprint state",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active Missions with automatic Sprint state"
+          }
+        }
+      }
+    },
+    "/api/briefings/latest": {
+      "get": {
+        "summary": "Get the latest deterministic intelligence briefing",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Latest briefing record, or null before the first briefing is generated"
+          }
+        }
+      }
+    },
+    "/api/budget": {
+      "get": {
+        "summary": "Inspect the active Free, Cheap, or custom budget envelope, including R2 operations and submitted write bytes.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Change the application-level Cloudflare budget profile.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/budget/execution-capacity": {
+      "put": {
+        "summary": "Confirm or clear higher Worker execution limits.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "confirmedWorkersPaid"
+                ],
+                "properties": {
+                  "confirmedWorkersPaid": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Execution capacity updated"
+          },
+          "400": {
+            "description": "Confirmation must be true or false"
+          }
+        }
+      }
+    },
+    "/api/catalog/source": {
+      "post": {
+        "summary": "Create a source from a Companion's live read-adapter manifest",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Manifest-validated source created"
+          }
+        }
+      }
+    },
+    "/api/capabilities": {
+      "get": {
+        "summary": "List fixed Companion capabilities and live OpenCLI adapters",
+        "description": "Returns required and optional arguments for dashboard and one-click source validation.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fixed read-only capabilities and the live Companion catalog"
+          }
+        }
+      }
+    },
+    "/api/collectors": {
+      "get": {
+        "summary": "List Companion nodes and live read adapters",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Companion state"
+          }
+        }
+      }
+    },
+    "/api/config/export": {
+      "get": {
+        "summary": "Export a portable Driftglass Profile v2",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sources, Missions, operators, research baselines, ledger, interests, Taste Profile, and saved views"
+          }
+        }
+      }
+    },
+    "/api/config/import": {
+      "post": {
+        "summary": "Preview or merge a portable Driftglass Profile",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dryRun",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import preview or merge result"
+          }
+        }
+      }
+    },
+    "/api/email/receipts": {
+      "get": {
+        "summary": "List owner-visible inbound Email receipts",
+        "description": "Shows delivery, duplicate, Queue, and bounded attachment-descriptor state. A queued receipt proves Queue acceptance; poll Story detail to prove durable ingestion.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent inbound Email receipts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "receipts"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "receipts": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/InboxReceiptSummary" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/outbox/drain": {
+      "post": {
+        "summary": "Resume the bounded built-in source producer outbox",
+        "description": "Owner-only recovery drain for exact, immutable Queue bodies staged by built-in public source runs. A bounded call retains ambiguous bodies for safe receipt-aware replay.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "maxBatches": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6,
+                    "default": 6
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Content-free bounded drain result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "claimed", "sentCount", "receiptCount", "batchCount", "completed", "ambiguous"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "claimed": { "type": "boolean" },
+                    "runId": { "type": "string" },
+                    "sentCount": { "type": "integer", "minimum": 0 },
+                    "receiptCount": { "type": "integer", "minimum": 0 },
+                    "batchCount": { "type": "integer", "minimum": 0 },
+                    "completed": { "type": "boolean" },
+                    "ambiguous": { "type": "boolean" },
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/dead-letters": {
+      "get": {
+        "summary": "List exhausted ingest messages requiring owner recovery",
+        "description": "Returns content-free operational metadata only across the normal D1 store and emergency private-R2 fallback. Bounded recovery bodies remain server-side.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content-free ingest dead-letter summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "deadLetters"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "deadLetters": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/IngestDeadLetterSummary" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/dead-letters/{deadLetterId}/dismiss": {
+      "post": {
+        "summary": "Dismiss one exhausted ingest message",
+        "description": "Marks a D1 record ignored and clears its recovery body. An emergency private-R2 incident is first integrity-checked and materialized through normal D1 tracked-run and Email-failure accounting; R2 deletion follows the permanent content-free ignored audit.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "deadLetterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dead letter dismissed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "deadLetter"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "deadLetter": { "$ref": "#/components/schemas/IngestDeadLetterSummary" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ingest/dead-letters/{deadLetterId}/retry": {
+      "post": {
+        "summary": "Retry one exhausted ingest message",
+        "description": "Integrity-checks and requeues the stored body through durability preflight and Queue budget reservation. Emergency R2 incidents first materialize through normal D1 tracked-run and Email-failure accounting; the private body is cleared only after send succeeds, and R2 deletion follows the permanent content-free D1 audit.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "deadLetterId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A previously committed emergency-R2 retry was cleaned up without another Queue send",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "queued", "cleanupOnly", "deadLetter"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "queued": { "type": "integer", "const": 0 },
+                    "cleanupOnly": { "type": "boolean", "const": true },
+                    "deadLetter": { "$ref": "#/components/schemas/IngestDeadLetterSummary" }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Dead letter accepted for Queue redelivery",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "queued", "deadLetter"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "queued": { "type": "integer", "const": 1 },
+                    "deadLetter": { "$ref": "#/components/schemas/IngestDeadLetterSummary" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/decisions": {
+      "get": {
+        "summary": "List durable decisions, forecasts, theses, and commitments",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a durable decision record",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Decision created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/decisions/{decisionId}": {
+      "get": {
+        "summary": "Fetch one durable decision or forecast",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a durable decision or forecast",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/decisions/{decisionId}/review": {
+      "post": {
+        "summary": "Record an outcome and calibration review",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "name": "decisionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/deep-dives/{caseId}/file": {
+      "get": {
+        "summary": "Read a proxied Computer Power Mode case file",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "/dossier.md"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Computer Power Mode case file"
+          }
+        }
+      }
+    },
+    "/api/dossiers": {
+      "get": {
+        "summary": "Compile a Living Dossier",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Return deterministic thesis, chronology, contradictions, gaps, decisions, and evidence quality for global, Mission, Story, or query scope."
+      }
+    },
+    "/api/evidence/lineage": {
+      "get": {
+        "summary": "Summarize evidence-family lineage or list bounded lineage records",
+        "description": "With no storyId, familyKey, or limit query parameter, returns the backward-compatible aggregate summary. Supplying any of those parameters returns detailed lineage records in the lineage field; storyId and familyKey may be combined.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "familyKey",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 240
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "default": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregate summary without filters, or bounded detailed lineage records when a documented query parameter is supplied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "required": ["ok", "summary"],
+                      "properties": {
+                        "ok": { "type": "boolean", "const": true },
+                        "summary": {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/EvidenceLineageSummary" }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": ["ok", "filters", "lineage"],
+                      "properties": {
+                        "ok": { "type": "boolean", "const": true },
+                        "filters": {
+                          "type": "object",
+                          "required": ["limit"],
+                          "properties": {
+                            "storyId": { "type": "string" },
+                            "familyKey": { "type": "string" },
+                            "limit": { "type": "integer", "minimum": 1, "maximum": 500 }
+                          }
+                        },
+                        "lineage": {
+                          "type": "array",
+                          "items": { "$ref": "#/components/schemas/EvidenceLineageRecord" }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "A lineage filter is empty, duplicated, too long, or the limit is outside 1–500"
+          }
+        }
+      }
+    },
+    "/api/evidence/lineage/backfill": {
+      "post": {
+        "summary": "Backfill bounded evidence-lineage relations",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/integrations": {
+      "get": {
+        "summary": "Get private packet, MCP, corpus, and task integration URLs",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Integration configuration"
+          }
+        }
+      }
+    },
+    "/api/intelligence-pack-overlays/{overlayId}": {
+      "parameters": [
+        {
+          "name": "overlayId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Fetch one Pack overlay",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete one Pack overlay",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/intelligence-pack-overlays/{overlayId}/status": {
+      "post": {
+        "summary": "Enable or disable a Pack overlay",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "overlayId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs": {
+      "get": {
+        "summary": "List installed Intelligence Packs.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/catalog": {
+      "get": {
+        "summary": "List available cloud-first Intelligence Packs.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/install": {
+      "post": {
+        "summary": "Install a reviewed Intelligence Pack without requiring Companion sources.",
+        "responses": {
+          "201": {
+            "description": "Intelligence Pack installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intelligence-packs/install-url": {
+      "post": {
+        "summary": "Fetch, validate, preview, and install an Intelligence Pack from a public URL.",
+        "responses": {
+          "201": {
+            "description": "Intelligence Pack fetched and installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intelligence-packs/preview": {
+      "post": {
+        "summary": "Preview Pack changes and projected Free or Cheap Cloudflare usage before installation.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intelligence-packs/schema": {
+      "get": {
+        "summary": "Get the Intelligence Pack JSON Schema.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/updates": {
+      "get": {
+        "summary": "Check a bounded number of installed Packs for newer versions on demand.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/{packId}/export": {
+      "get": {
+        "summary": "Export the installed Intelligence Pack manifest.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "packId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/{packId}/fork": {
+      "post": {
+        "summary": "Export the effective Pack, including local customizations, as a portable Pack v3 fork.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "packId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "get": {
+        "summary": "Export the effective customized Pack as a portable fork",
+        "description": "Read-only compatibility alias. Applies active overlays in memory without updating overlay status or timestamps. Use POST when supplying a custom fork ID, name, or description.",
+        "deprecated": true,
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "name": "packId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/{packId}/overlays": {
+      "get": {
+        "summary": "List Pack overlays and snapshots",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a local Pack overlay",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intelligence-packs/{packId}/overlays/capture": {
+      "post": {
+        "summary": "Capture current Pack customizations as an overlay",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/intelligence-packs/{packId}/skill.zip": {
+      "get": {
+        "summary": "Export an installed Intelligence Pack as a portable Agent Skill.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "packId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/intelligence-packs/{packId}/update": {
+      "post": {
+        "summary": "Apply an explicitly reviewed Intelligence Pack update.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "packId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/intelligence/overview": {
+      "get": {
+        "summary": "Get the Memory, Pack, reasoning-interface, and budget overview.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/judgment": {
+      "get": {
+        "summary": "Open the finite Judgment workspace",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Return prepared tasks, receipts, runs, decisions, pending reviews, and source-quality context."
+      }
+    },
+    "/api/lenses/install-url": {
+      "post": {
+        "summary": "Install a portable Lens from a public JSON URL",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lens installed"
+          }
+        }
+      }
+    },
+    "/api/manual": {
+      "post": {
+        "summary": "Capture a URL or note",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Capture accepted for Queue delivery"
+          }
+        }
+      }
+    },
+    "/api/memory/audit": {
+      "get": {
+        "summary": "Audit contradictions, overdue expectations, orphan memories, provenance gaps, and supersession integrity.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/memory/checkpoints": {
+      "get": {
+        "summary": "List temporal Memory Graph checkpoints",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a bounded Memory Graph checkpoint",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "description": "Persist a deterministic temporal snapshot for later before-and-after comparison.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/memory/checkpoints/compare": {
+      "get": {
+        "summary": "Compare two Memory Graph checkpoints",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Return added, removed, changed, and superseded durable memory between two checkpoints."
+      }
+    },
+    "/api/memory/checkpoints/{checkpointId}": {
+      "get": {
+        "summary": "Fetch one Memory Graph checkpoint",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/memory/contract": {
+      "get": {
+        "summary": "Get the typed model-proposed durable-memory patch contract.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/memory/health": {
+      "get": {
+        "summary": "Inspect bounded Memory Graph size, provenance coverage, refresh state, and proposal queue.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/memory/proposals": {
+      "get": {
+        "summary": "List staged durable-memory proposals.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Stage a model-proposed durable-memory patch for explicit review.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/memory/proposals/{proposalId}/approve": {
+      "post": {
+        "summary": "Approve and apply a reviewed durable-memory proposal.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/memory/proposals/{proposalId}/reject": {
+      "post": {
+        "summary": "Reject a staged durable-memory proposal.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "proposalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/memory/refresh": {
+      "post": {
+        "summary": "Queue Free-tier-safe native Workflow maintenance of deterministic structural memory from canonical Stories, Missions, sources, Packs, and evidence.",
+        "responses": {
+          "200": {
+            "description": "Complete, partial, or deferred result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Memory Graph Workflow queued or already running",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/memory/search": {
+      "get": {
+        "summary": "Recall a bounded Memory Graph neighborhood and timeline.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ref",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/api/memory/timeline": {
+      "get": {
+        "summary": "Get the provenance-aware memory timeline.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/mission-runs": {
+      "get": {
+        "summary": "List durable Mission Sprint run history",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission Sprint runs and result summaries"
+          }
+        }
+      }
+    },
+    "/api/mission-runs/{runId}": {
+      "get": {
+        "summary": "Get one Mission Sprint record and live Workflow status",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission Sprint run and Workflow status"
+          }
+        }
+      }
+    },
+    "/api/missions": {
+      "get": {
+        "summary": "List Research Missions",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Missions"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a Research Mission",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Mission created and bounded match maintenance queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "mission", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "mission": { "type": "object" },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceStart" }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Mission created and bounded match maintenance completed in self-host mode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "mission", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "mission": { "type": "object" },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceComplete" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}": {
+      "get": {
+        "summary": "Get one Research Mission and matched Story timeline",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission detail"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Mission operator state, expected event, research policy, threshold, and outcome",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Mission and operator updated; bounded match maintenance queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "mission", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "mission": { "type": "object" },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceStart" }
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Mission and operator updated; bounded match maintenance completed in self-host mode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "mission", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "mission": { "type": "object" },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceComplete" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/rebuild": {
+      "get": {
+        "summary": "Read bounded Mission match maintenance Workflow status and coverage",
+        "security": [{ "ownerSecret": [] }],
+        "parameters": [
+          { "name": "missionId", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "workflowId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Workflow status, including final bounded coverage when complete" }
+        }
+      },
+      "post": {
+        "summary": "Queue bounded Mission match maintenance",
+        "security": [{ "ownerSecret": [] }],
+        "parameters": [
+          { "name": "missionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "202": {
+            "description": "Mission match maintenance queued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceStart" }
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Mission match maintenance completed in self-host mode",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "matchMaintenance"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "matchMaintenance": { "$ref": "#/components/schemas/MissionMatchMaintenanceComplete" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/bundle": {
+      "get": {
+        "summary": "Export a bounded provider-neutral Mission research bundle",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission state, operator, events, Stories, and exact evidence"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer": {
+      "get": {
+        "summary": "Read the current filesystem-only Mission Computer inventory",
+        "description": "Strictly read-only. Returns the current workspace summary without creating or synchronizing files; use POST /api/missions/{missionId}/computer/sync for an explicit refresh.",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission Computer inventory"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer/export": {
+      "get": {
+        "summary": "Export the Mission Computer text workspace",
+        "description": "Strictly read-only. Exports files that already exist and never performs a first-open synchronization.",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portable file map"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer/file": {
+      "get": {
+        "summary": "Read a durable Mission Computer text file",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "path",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File content"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer/notes": {
+      "post": {
+        "summary": "Append a durable working note",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "content"
+                ],
+                "properties": {
+                  "content": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Saved note"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer/search": {
+      "get": {
+        "summary": "Search files in a Mission Computer",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filesystem search matches"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/computer/sync": {
+      "post": {
+        "summary": "Synchronize Mission state and evidence into its Computer",
+        "description": "Queues a bounded Mission Computer refresh on Cloudflare and returns the current workspace summary; self-hosted deployments without Workflows complete it inline.",
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current Mission Computer plus queued or completed synchronization status"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/deep-dive": {
+      "post": {
+        "summary": "Create or refresh a Computer Power Mode case for a Mission",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Computer Power Mode case prepared"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/deep-research": {
+      "get": {
+        "summary": "Prepare a read-only ChatGPT Deep Research handoff for a Mission",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "description": "Mission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state, source map, gaps, research plan, recommendation, and prompt"
+          }
+        }
+      },
+      "post": {
+        "summary": "Prepare and record a Deep Research escalation in the Mission ledger",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "description": "Mission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deep Research handoff prepared and escalation recorded"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/events": {
+      "get": {
+        "summary": "List the longitudinal Mission ledger",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "description": "Mission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission events"
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a signal, expected event, outcome, escalation, or note to a Mission",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "description": "Mission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Mission event recorded"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/research-results/preview": {
+      "post": {
+        "summary": "Stage a structured Deep Research result and calculate a before/after Mission diff",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Mission ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "result"
+                ],
+                "properties": {
+                  "result": {
+                    "type": "object"
+                  },
+                  "source": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Research result staged for explicit approval"
+          }
+        }
+      }
+    },
+    "/api/missions/{missionId}/sprint": {
+      "post": {
+        "summary": "Start a durable Cloudflare Workflow Mission Sprint",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sourceIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "maxItems": 30
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Mission Sprint accepted and Workflow instance created"
+          }
+        }
+      }
+    },
+    "/api/overview": {
+      "get": {
+        "summary": "Get dashboard overview",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Overview"
+          }
+        }
+      }
+    },
+    "/api/readiness": {
+      "get": {
+        "summary": "Run the deployment Readiness Doctor",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Readiness score, checks, and private integration URLs"
+          }
+        }
+      }
+    },
+    "/api/reasoning/compile": {
+      "post": {
+        "summary": "Compile a bounded evidence-and-memory reasoning context with contradictions, gaps, playbooks, and output contract.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/chatgpt-plugin.zip": {
+      "post": {
+        "summary": "Build a personal Driftglass plugin for an existing ChatGPT connection.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "appId"
+                ],
+                "properties": {
+                  "appId": {
+                    "type": "string",
+                    "pattern": "^plugin_asdk_app_[0-9a-f]{32}$",
+                    "description": "Technical app ID copied from the registered ChatGPT connection URL."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ready-to-install local marketplace containing the personalized Driftglass plugin.",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid technical app ID or request shape."
+          },
+          "401": {
+            "description": "Owner authentication required."
+          }
+        }
+      }
+    },
+    "/api/reasoning/interface-kit.zip": {
+      "post": {
+        "summary": "Export a private, compact-by-default ChatGPT, Claude, Grok, and generic MCP interface kit for one reasoning objective.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "includeOperations": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Explicitly embed the independently scoped operations MCP capability. When true, the private ZIP can authorize approved Driftglass mutations and must be handled as a mutation bearer."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/providers": {
+      "get": {
+        "summary": "Get provider-neutral ChatGPT, Claude, Grok, and generic MCP connection guidance.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ]
+      }
+    },
+    "/api/reasoning/receipts": {
+      "get": {
+        "summary": "List exact Evidence-State Receipts",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an exact hashed Evidence-State Receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Receipt created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/receipts/{receiptId}": {
+      "get": {
+        "summary": "Fetch one exact Evidence-State Receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/reasoning/receipts/{receiptId}/compare": {
+      "get": {
+        "summary": "Compare model results that used the same receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "parameters": [
+          {
+            "name": "receiptId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/api/reasoning/receipts/{receiptId}/results": {
+      "post": {
+        "summary": "Record a provider-neutral reasoning result",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Reasoning run recorded"
+          }
+        },
+        "parameters": [
+          {
+            "name": "receiptId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/receipts/{receiptId}/runs": {
+      "post": {
+        "summary": "Begin a provider-neutral reasoning run for this receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/runs": {
+      "get": {
+        "summary": "List provider-neutral reasoning runs",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/reasoning/runs/{runId}/complete": {
+      "post": {
+        "summary": "Record a model result against an exact receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/runs/{runId}/review": {
+      "post": {
+        "summary": "Approve or reject a recorded reasoning result",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/skill.zip": {
+      "post": {
+        "summary": "Export the compiled context as a portable Agent Skill.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/tasks": {
+      "get": {
+        "summary": "List finite prepared reasoning tasks",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a prepared reasoning task",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Task created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/tasks/next": {
+      "get": {
+        "summary": "Inspect the highest-priority reasoning task",
+        "description": "Strictly read-only. Returns queued tasks without creating an Evidence-State Receipt. receiptState is ready, not-materialized, or none; use POST /api/reasoning/tasks/{taskId}/materialize for explicit receipt creation.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task, prompt, and current receipt state; this operation performs no materialization or writes"
+          }
+        }
+      }
+    },
+    "/api/reasoning/tasks/refresh": {
+      "post": {
+        "summary": "Refresh the finite reasoning inbox",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Derive a bounded queue of reasoning work from current Missions, Stories, decisions, and memory state.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/tasks/{taskId}/materialize": {
+      "post": {
+        "summary": "Materialize a reasoning task into an exact receipt",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reasoning/tasks/{taskId}/status": {
+      "post": {
+        "summary": "Update reasoning task status",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/render/inspect": {
+      "post": {
+        "summary": "Inspect a public page through the adaptive Kitesurf-first browse mesh",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rendered page"
+          }
+        }
+      }
+    },
+    "/api/research-results": {
+      "get": {
+        "summary": "List staged Deep Research results awaiting approval",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending structured research-result imports and diffs"
+          }
+        }
+      }
+    },
+    "/api/research-results/{importId}/confirm": {
+      "post": {
+        "summary": "Confirm a staged Deep Research result",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "importId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Research result import ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decision recorded and Mission memory updated"
+          }
+        }
+      }
+    },
+    "/api/research-results/{importId}/reject": {
+      "post": {
+        "summary": "Reject a staged Deep Research result",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "importId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Research result import ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decision recorded"
+          }
+        }
+      }
+    },
+    "/api/routine-runs": {
+      "get": {
+        "summary": "List deterministic Intelligence Routine runs",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/routines": {
+      "get": {
+        "summary": "List deterministic Intelligence Routines",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a bounded Intelligence Routine",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Routine created"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/routines/{routineId}/run": {
+      "post": {
+        "summary": "Run an Intelligence Routine",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Routine run started"
+          }
+        },
+        "description": "Start the Cloudflare Workflow for a bounded analyst playbook.",
+        "parameters": [
+          {
+            "name": "routineId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/runtime": {
+      "get": {
+        "summary": "Inspect the current Agent Runtime Fabric",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Return cloud, browser, Computer, and Companion capabilities and health."
+      }
+    },
+    "/api/runtime/plan": {
+      "post": {
+        "summary": "Plan the best runtime for a bounded task",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Choose Worker, Kitesurf, Chromium, Mission Computer, or Companion from capability, persistence, privacy, health, and budget constraints.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session": {
+      "get": {
+        "summary": "Validate owner authentication and read the deployed Driftglass version",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated session metadata"
+          }
+        }
+      }
+    },
+    "/api/shares": {
+      "get": {
+        "summary": "List public intelligence cards",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public card metadata"
+          }
+        }
+      },
+      "post": {
+        "summary": "Publish a Story, Mission, or briefing as an expiring public intelligence card",
+        "description": "Owner-authenticated creation of an expiring Share from public evidence.",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PublicShareCreateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Public card created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PublicShareCreateResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/source-scorecards": {
+      "get": {
+        "summary": "List source-value scorecards",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "description": "Return useful yield, Mission contribution, independence, echo rate, health, latency, and cadence recommendations."
+      }
+    },
+    "/api/sources": {
+      "get": {
+        "summary": "List sources",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sources"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create or update a source",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Source created"
+          }
+        }
+      }
+    },
+    "/api/sources/cadence": {
+      "get": {
+        "summary": "List adaptive source-cadence recommendations",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/sources/{sourceId}": {
+      "delete": {
+        "summary": "Delete one configured source",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Source deleted"
+          }
+        }
+      }
+    },
+    "/api/sources/{sourceId}/run": {
+      "post": {
+        "summary": "Run one configured source now",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Terminal zero-item collection result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SourceRunDispatch" }
+              }
+            }
+          },
+          "202": {
+            "description": "Collection accepted for durable Queue ingestion or Companion collection",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SourceRunDispatch" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sources/{sourceId}/runs": {
+      "get": {
+        "summary": "List recent collection runs for one source",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sourceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded source run history with collection and durable-ingestion progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["ok", "runs"],
+                  "properties": {
+                    "ok": { "type": "boolean", "const": true },
+                    "runs": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/SourceRunHistoryEntry" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stories": {
+      "get": {
+        "summary": "List recent Stories or search Story memory",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 30
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Recent or matching Stories"
+          }
+        }
+      }
+    },
+    "/api/stories/{storyId}": {
+      "get": {
+        "summary": "Get one Story with its exact evidence records",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Story and evidence detail"
+          },
+          "404": {
+            "description": "Story not found"
+          }
+        }
+      }
+    },
+    "/api/stories/{storyId}/bundle": {
+      "get": {
+        "summary": "Export a bounded provider-neutral Story research bundle",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portable Story and evidence bundle"
+          }
+        }
+      }
+    },
+    "/api/stories/{storyId}/deep-dive": {
+      "post": {
+        "summary": "Create or refresh a Computer Power Mode case for a Story",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Computer Power Mode case prepared"
+          }
+        }
+      }
+    },
+    "/api/stories/{storyId}/explain": {
+      "get": {
+        "summary": "Explain why a Story ranked, including Taste, feedback, Mission, source breadth, and recency components",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking explanation"
+          }
+        }
+      }
+    },
+    "/api/stories/{storyId}/graph": {
+      "get": {
+        "summary": "Get explainable related developments around a Story",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Story graph nodes and reasoned edges"
+          }
+        }
+      }
+    },
+    "/api/taste": {
+      "get": {
+        "summary": "Get the learned Taste Profile",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Learned topic and source preferences"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Reset the learned Taste Profile",
+        "security": [
+          {
+            "ownerSecret": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile reset"
+          }
+        }
+      }
+    },
+    "/corpus/{readKey}/index.html": {
+      "get": {
+        "summary": "Open the private AI Search corpus index",
+        "description": "Read-key protected index of Mission and Story Markdown documents for one-click semantic retrieval setup.",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private HTML corpus index"
+          }
+        }
+      }
+    },
+    "/corpus/{readKey}/missions/{missionId}.md": {
+      "get": {
+        "summary": "Read one private Mission corpus document",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission Markdown"
+          }
+        }
+      }
+    },
+    "/corpus/{readKey}/sitemap.xml": {
+      "get": {
+        "summary": "List private AI Search corpus documents",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Private corpus sitemap"
+          }
+        }
+      }
+    },
+    "/corpus/{readKey}/stories/{storyId}.md": {
+      "get": {
+        "summary": "Read one private Story corpus document with evidence",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "storyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Story and evidence Markdown"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Healthy"
+          }
+        }
+      }
+    },
+    "/lenses/catalog.json": {
+      "get": {
+        "summary": "List built-in Community Lenses",
+        "responses": {
+          "200": {
+            "description": "Lens catalog"
+          }
+        }
+      }
+    },
+    "/mcp/{readKey}": {
+      "post": {
+        "summary": "Call the private compact read-only reasoning MCP app",
+        "description": "Compact read-only reasoning surface. readKey is independently derived and cannot authorize the operations profile.",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP response"
+          },
+          "404": {
+            "description": "Missing or incorrect compact read capability"
+          }
+        }
+      }
+    },
+    "/mcp/{operationsKey}/ops": {
+      "post": {
+        "summary": "Call the private Driftglass operations MCP app",
+        "description": "Explicit broader control plane for Mission, Pack, feedback, Computer, and durable-memory operations. operationsKey is independently derived from the owner secret; the compact readKey is not accepted here.",
+        "parameters": [
+          {
+            "name": "operationsKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "MCP response"
+          },
+          "404": {
+            "description": "Missing or incorrect operations capability"
+          }
+        }
+      }
+    },
+    "/packet/{readKey}/latest.md": {
+      "get": {
+        "summary": "Get the latest bounded briefing packet",
+        "description": "Strictly read-only. Returns a recent persisted briefing or builds an ephemeral packet in memory when the persisted briefing is stale or missing.",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Markdown packet"
+          }
+        }
+      }
+    },
+    "/packet/{readKey}/mission/{missionId}.md": {
+      "get": {
+        "summary": "Get the current bounded packet for one Research Mission",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mission state, matched Stories, evidence, and ledger Markdown"
+          }
+        }
+      }
+    },
+    "/packet/{readKey}/mission/{missionId}/deep-research.md": {
+      "get": {
+        "summary": "Private Markdown Deep Research handoff for a Mission",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "description": "Private read capability",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "missionId",
+            "in": "path",
+            "required": true,
+            "description": "Mission ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deep Research handoff Markdown"
+          }
+        }
+      }
+    },
+    "/packet/{readKey}/pulse.md": {
+      "get": {
+        "summary": "Get the bounded meaningful-change scheduled-check feed",
+        "description": "Strictly read-only, read-key protected Markdown for recurring alert clients. Uses a recent persisted briefing or an in-memory ephemeral packet and returns NO_SIGNAL when no development crosses the bounded threshold.",
+        "parameters": [
+          {
+            "name": "readKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scheduled-check Markdown"
+          }
+        }
+      }
+    },
+    "/robots.txt": {
+      "get": {
+        "summary": "Crawler policy and sitemap pointer",
+        "responses": {
+          "200": {
+            "description": "Robots policy"
+          }
+        }
+      }
+    },
+    "/share/{shareToken}": {
+      "get": {
+        "summary": "Read a public intelligence card",
+        "parameters": [
+          {
+            "name": "shareToken",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML or JSON intelligence card"
+          },
+          "410": {
+            "description": "Expired or unavailable"
+          }
+        }
+      }
+    },
+    "/share/{shareToken}/drop.zip": {
+      "get": {
+        "summary": "Download a standalone Cloudflare Drop-ready intelligence Capsule",
+        "parameters": [
+          {
+            "name": "shareToken",
+            "in": "path",
+            "required": true,
+            "description": "Public share token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ZIP containing static HTML, evidence Markdown, structured data, and agent-readable context",
+            "content": {
+              "application/zip": {}
+            }
+          },
+          "410": {
+            "description": "Share expired or unavailable"
+          }
+        }
+      }
+    },
+    "/share/{shareToken}/og.png": {
+      "get": {
+        "summary": "Get the Kitesurf-rendered social preview for a public intelligence card",
+        "parameters": [
+          {
+            "name": "shareToken",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "1200\u00d7630 PNG preview",
+            "content": {
+              "image/png": {}
+            }
+          }
+        }
+      }
+    },
+    "/sitemap.xml": {
+      "get": {
+        "summary": "Agent-readable public surface map",
+        "responses": {
+          "200": {
+            "description": "Sitemap"
+          }
+        }
+      }
+    }
+  }
+}

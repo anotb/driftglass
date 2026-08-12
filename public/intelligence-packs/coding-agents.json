@@ -1,0 +1,418 @@
+{
+  "$schema": "../schema.json",
+  "driftglassPack": "3",
+  "id": "coding-agents",
+  "version": "3.1.0",
+  "name": "Coding Agents",
+  "description": "A cloud-first product and implementation radar for Codex, Claude Code, MCP, agent memory, IDE workflows, and reliable coding-agent practices.",
+  "author": "Driftglass contributors",
+  "category": "Developer tools",
+  "icon": "⌘",
+  "featured": true,
+  "cloudSources": [
+    {
+      "id": "coding-agent-releases",
+      "name": "OpenAI Codex — stable releases",
+      "kind": "web_feed",
+      "config": {
+        "url": "https://github.com/openai/codex/releases",
+        "title": "OpenAI Codex stable releases",
+        "renderStrategy": "direct",
+        "articleRenderStrategy": "direct",
+        "sameOrigin": true,
+        "includePattern": "^/openai/codex/releases/tag/rust-v\\d+\\.\\d+\\.\\d+(?=\\n)",
+        "maxLinks": 20,
+        "maxArticles": 4,
+        "fetchArticles": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 4
+      },
+      "scheduleMinutes": 360,
+      "weight": 1.55
+    },
+    {
+      "id": "coding-agent-activity",
+      "name": "Anthropic Claude Code — releases",
+      "kind": "web_feed",
+      "config": {
+        "url": "https://github.com/anthropics/claude-code/releases",
+        "title": "Anthropic Claude Code releases",
+        "renderStrategy": "direct",
+        "articleRenderStrategy": "direct",
+        "sameOrigin": true,
+        "includePattern": "^/anthropics/claude-code/releases/tag/v\\d+\\.\\d+\\.\\d+(?=\\n)",
+        "maxLinks": 30,
+        "maxArticles": 10,
+        "fetchArticles": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 10
+      },
+      "scheduleMinutes": 360,
+      "weight": 1.55
+    },
+    {
+      "id": "coding-agent-mcp",
+      "name": "Model Context Protocol — official updates",
+      "kind": "web_feed",
+      "config": {
+        "url": "https://blog.modelcontextprotocol.io/",
+        "title": "Model Context Protocol updates",
+        "renderStrategy": "direct",
+        "articleRenderStrategy": "direct",
+        "sameOrigin": true,
+        "includePattern": "^/posts/\\d{4}-\\d{2}-\\d{2}/",
+        "excludePattern": "/tags/|/archives/|/search/",
+        "maxLinks": 20,
+        "maxArticles": 4,
+        "fetchArticles": true,
+        "evidenceRole": "primary",
+        "estimatedItemsPerRun": 4
+      },
+      "scheduleMinutes": 720,
+      "weight": 1.5
+    },
+    {
+      "id": "coding-agent-hn",
+      "name": "Hacker News — coding-agent practice",
+      "kind": "hackernews",
+      "config": {
+        "feed": "best",
+        "limit": 50,
+        "minScore": 20,
+        "watchTerms": [
+          "codex",
+          "claude code",
+          "coding agent",
+          "mcp",
+          "agent memory",
+          "agent workflow"
+        ],
+        "evidenceRole": "practitioner",
+        "estimatedItemsPerRun": 12
+      },
+      "scheduleMinutes": 180,
+      "weight": 0.9
+    },
+    {
+      "id": "coding-agent-research",
+      "name": "arXiv — coding-agent workflows",
+      "kind": "arxiv",
+      "config": {
+        "query": "\"coding agent\"",
+        "limit": 8,
+        "sortBy": "submittedDate",
+        "evidenceRole": "independent",
+        "estimatedItemsPerRun": 8
+      },
+      "scheduleMinutes": 720,
+      "weight": 1.05
+    }
+  ],
+  "companionSources": [
+    {
+      "id": "coding-agent-x",
+      "name": "Coding-agent builders on X",
+      "kind": "collector",
+      "config": {
+        "operation": "x.search",
+        "args": {
+          "query": "(Codex OR Claude Code OR coding agent OR MCP) -is:retweet",
+          "limit": 60
+        },
+        "evidenceRole": "discovery",
+        "estimatedItemsPerRun": 40
+      },
+      "scheduleMinutes": 360,
+      "weight": 0.9
+    },
+    {
+      "id": "coding-agent-reddit",
+      "name": "Coding-agent practitioner discussions",
+      "kind": "collector",
+      "config": {
+        "operation": "reddit.search",
+        "args": {
+          "query": "Codex Claude Code coding agents",
+          "limit": 50
+        },
+        "evidenceRole": "practitioner",
+        "estimatedItemsPerRun": 35
+      },
+      "scheduleMinutes": 720,
+      "weight": 0.8
+    }
+  ],
+  "missions": [
+    {
+      "id": "coding-agent-workflow-improvements",
+      "name": "Coding-agent workflow improvements",
+      "question": "What changed that should materially improve my multi-agent coding workflow, reliability, or migration path while preserving explicit approvals, provenance, and rollback?",
+      "terms": [
+        "Codex",
+        "Claude Code",
+        "coding agent",
+        "MCP",
+        "agent memory",
+        "context engineering",
+        "IDE integration",
+        "skills",
+        "approval",
+        "permissions",
+        "hooks",
+        "elicitation",
+        "evidence receipt",
+        "provenance",
+        "rollback",
+        "stateless",
+        "session"
+      ],
+      "sourceScope": [
+        "coding-agent-releases",
+        "coding-agent-activity",
+        "coding-agent-mcp",
+        "coding-agent-hn",
+        "coding-agent-research"
+      ],
+      "status": "active",
+      "priority": 2,
+      "cadenceMinutes": 360,
+      "mode": "decision",
+      "researchPolicy": "suggest",
+      "sprintPolicy": "scheduled",
+      "alertThreshold": 0.7,
+      "reminderLeadDays": 1
+    }
+  ],
+  "views": [
+    {
+      "id": "coding-agent-memory",
+      "name": "Agent memory",
+      "query": "coding agent memory context persistence skills"
+    },
+    {
+      "id": "coding-agent-migrations",
+      "name": "Workflow migrations",
+      "query": "Claude Code Codex migration config workflow"
+    }
+  ],
+  "memory": {
+    "entities": [
+      {
+        "id": "openai-codex",
+        "type": "coding-agent",
+        "name": "OpenAI Codex",
+        "aliases": [
+          "Codex CLI"
+        ],
+        "importance": 0.95
+      },
+      {
+        "id": "claude-code",
+        "type": "coding-agent",
+        "name": "Claude Code",
+        "importance": 0.95
+      },
+      {
+        "id": "model-context-protocol",
+        "type": "protocol",
+        "name": "Model Context Protocol",
+        "aliases": [
+          "MCP"
+        ],
+        "importance": 0.9
+      }
+    ],
+    "questions": [
+      {
+        "id": "workflow-improvement",
+        "title": "Which release or configuration pattern produces a measurable coding-agent workflow improvement?",
+        "importance": 0.95
+      },
+      {
+        "id": "memory-reliability",
+        "title": "Which memory and context mechanism remains reliable across long-running coding work?",
+        "importance": 0.9
+      }
+    ],
+    "relations": [
+      {
+        "from": "openai-codex",
+        "to": "model-context-protocol",
+        "relation": "related_to",
+        "weight": 0.75,
+        "confidence": 0.85
+      },
+      {
+        "from": "claude-code",
+        "to": "model-context-protocol",
+        "relation": "related_to",
+        "weight": 0.75,
+        "confidence": 0.85
+      }
+    ],
+    "claims": [
+      {
+        "id": "official-release-before-chatter",
+        "title": "Workflow changes should be anchored in official releases or reproducible configuration",
+        "summary": "Community reports are valuable discovery signals but not sufficient proof of a workflow improvement.",
+        "confidence": 0.9,
+        "importance": 0.92
+      }
+    ],
+    "expectations": [
+      {
+        "id": "agent-memory-converges",
+        "title": "Coding-agent memory will converge toward explicit project and task context boundaries",
+        "summary": "Track whether new releases make memory more inspectable, portable, and correctable.",
+        "confidence": 0.62,
+        "importance": 0.78
+      }
+    ]
+  },
+  "reasoning": {
+    "skill": {
+      "name": "Coding-agent workflow evaluator",
+      "description": "Translate releases and practitioner reports into concrete workflow changes.",
+      "instructions": "Prioritize official release evidence and reproducible configuration. Distinguish a model-quality improvement from an orchestration, context, tooling, or IDE improvement. Convert noteworthy changes into one testable workflow experiment with success criteria and rollback."
+    },
+    "briefingContract": [
+      "what changed",
+      "which workflow it affects",
+      "why it is better than the current path",
+      "exact experiment",
+      "migration or rollback note"
+    ],
+    "researchPlaybooks": [
+      {
+        "id": "workflow-experiment",
+        "name": "Workflow experiment",
+        "task": "decision",
+        "trigger": "A release or pattern could replace part of the current coding-agent workflow.",
+        "instructions": "Define the current baseline, proposed change, expected benefit, setup steps, test task, evaluation criteria, failure modes, and rollback."
+      },
+      {
+        "id": "claim-challenge",
+        "name": "Challenge agent claims",
+        "task": "challenge",
+        "trigger": "A community claim implies a large capability jump.",
+        "instructions": "Find the underlying release, code, benchmark, or reproduction. Separate model behavior, harness behavior, prompting, and tooling."
+      }
+    ],
+    "providerHints": {
+      "chatgpt": "Use Codex and ChatGPT context together; use Deep Research only when the implementation evidence is distributed across many sources.",
+      "claude": "Use the generated Agent Skill and Mission Computer when evaluating Claude Code configuration or repository changes.",
+      "grok": "Use X-native discovery to find fresh workflow reports, then validate them against releases and repositories."
+    },
+    "outputContract": [
+      "recommend try now, test, watch, or ignore",
+      "give one concrete experiment",
+      "name success criteria"
+    ]
+  },
+  "budget": {
+    "profile": "free",
+    "maxSources": 7,
+    "browserMinutesPerDay": 0.5,
+    "workflowStepsPerDay": 1080,
+    "projectedRunsPerDay": 20
+  },
+  "interestTerms": [
+    "Codex",
+    "Claude Code",
+    "coding agents",
+    "MCP",
+    "agent memory",
+    "context engineering",
+    "skills",
+    "IDE integration"
+  ],
+  "evidencePolicy": {
+    "minPrimarySources": 1,
+    "minIndependentSources": 1,
+    "maxDiscoveryShare": 0.4,
+    "maxEvidenceAgeHours": 168,
+    "preferredDomains": [
+      "github.com",
+      "openai.com",
+      "anthropic.com",
+      "modelcontextprotocol.io"
+    ]
+  },
+  "routines": [
+    {
+      "id": "coding-agent-monitor",
+      "name": "Coding-agent workflow monitor",
+      "description": "Refresh official product releases, protocol updates, community discussion, and research; then update the workflow Mission and its Computer.",
+      "missionId": "coding-agent-workflow-improvements",
+      "enabled": true,
+      "scheduleMinutes": 360,
+      "budgetClass": "light",
+      "trigger": "scheduled",
+      "steps": [
+        {
+          "id": "refresh",
+          "action": "refresh-sources",
+          "sourceIds": [
+            "coding-agent-releases",
+            "coding-agent-activity",
+            "coding-agent-mcp",
+            "coding-agent-hn",
+            "coding-agent-research"
+          ]
+        },
+        {
+          "id": "ingest",
+          "action": "wait-for-ingest",
+          "waitSeconds": 45
+        },
+        {
+          "id": "match",
+          "action": "rebuild-mission"
+        },
+        {
+          "id": "room",
+          "action": "sync-computer",
+          "runtime": "computer",
+          "optional": true
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "args": {
+            "reason": "Coding-agent monitor checkpoint"
+          }
+        }
+      ]
+    },
+    {
+      "id": "coding-agent-adoption-brief",
+      "name": "Prepare adoption brief",
+      "description": "Compile current evidence, prior choices, contradictions, and next actions for a strong subscription-model judgment.",
+      "missionId": "coding-agent-workflow-improvements",
+      "enabled": true,
+      "scheduleMinutes": null,
+      "budgetClass": "standard",
+      "trigger": "manual",
+      "steps": [
+        {
+          "id": "context",
+          "action": "compile-context",
+          "reasoningTask": "decision",
+          "target": "generic",
+          "args": {
+            "objective": "What should I change in my coding-agent workflow now, and what should I deliberately not change?",
+            "tokenBudget": 18000
+          }
+        },
+        {
+          "id": "checkpoint",
+          "action": "checkpoint-memory",
+          "args": {
+            "reason": "Coding-agent adoption decision checkpoint"
+          }
+        }
+      ]
+    }
+  ],
+  "lineage": {}
+}

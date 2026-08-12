@@ -1,0 +1,161 @@
+# Driftglass 0.9.0 agent guide
+
+Driftglass follows a finite set of standing questions. It collects chosen sources, consolidates repeated coverage into developing Stories, maintains Research Missions and connected memory, and gives a reasoning model the material needed to produce a current source-linked answer.
+
+## What an agent should do
+
+Treat the Mission question as the objective. Use Driftglass state to answer it, not to narrate the collection process.
+
+1. Open the Today or Mission brief.
+2. Identify the current conclusion and the developments that could change it.
+3. Inspect the cited source items behind consequential claims.
+4. Use `search` and `fetch` when the brief leaves a material gap.
+5. Distinguish independent support from repeated coverage of the same origin.
+6. Return the conclusion first, followed by the causal judgments and citations.
+7. Include a contrary case or watch signal only when it adds information.
+
+A useful answer usually contains:
+
+- a direct answer to the question
+- two or three causal or quantitative judgments with citations
+- the strongest plausible alternative case
+- observable signals that would change the conclusion
+- the source-date boundary when currency matters
+
+Use only the sections that earn their space. Avoid a changelog, audit report, evidence inventory, generic background section, or a paragraph of qualifiers.
+
+## Research MCP
+
+The default connection is read-only:
+
+```text
+brief_today
+brief_mission
+present_brief
+open_today
+next_reasoning_task
+prepare_context
+prepare_personal_context
+search
+fetch
+find_missions
+get_mission
+recall_memory
+compare_memory
+explain_story
+get_action_center
+get_system_health
+list_intelligence_packs
+```
+
+### Briefing flow
+
+`brief_today` and `brief_mission` return selected source material without mounting a card. Write the interpretation, cite the supplied items, then call `present_brief`. Driftglass checks each citation against a fresh brief before showing the answer card.
+
+Use `open_today` when the person wants the full Driftglass view. Use `next_reasoning_task` for prepared Mission work. Mission briefs report how many eligible source items they included and omitted; use `search`, `fetch`, or `prepare_context` when the question needs a broader pass. Use `prepare_personal_context` only when the person explicitly asks to include connected personal sources.
+
+### Investigation flow
+
+Use `search` to find relevant Stories, Missions, or indexed material. Use `fetch` to open the underlying result. `get_mission` returns the standing question, current thesis, chronology, disagreements, missing information, decisions, and source limits. `explain_story` shows how the items in a Story relate.
+
+### Memory flow
+
+Use `recall_memory` for linked findings, claims, questions, decisions, forecasts, and expectations. Use `compare_memory` when the question is what changed between two saved states.
+
+## Allow updates
+
+State changes use `/mcp/{private-operations-key}/ops`. The Research connection cannot authorize this path.
+
+The operations profile can record model results, review decisions, run Mission Sprints and routines, update Packs, write Mission Computer notes, and stage or approve memory proposals. The Research and operations capabilities are independently derived. Copy each complete address from the owner dashboard.
+
+Model output, decisions, and memory proposals are separate records. Do not treat a saved answer as an approved memory change.
+
+## Source state and saved answers
+
+For work that must remain reproducible, Driftglass creates an immutable Evidence-State Receipt. It binds the Mission objective, selected source items, connected memory, disagreements, missing information, requested answer shape, and source-state hash.
+
+The saved result retains its model label, answer hash, citations, confidence, and review outcome against that receipt. Another model can answer from the same receipt for comparison.
+
+This mechanism is for lineage and repeatability. The user-facing output should still read as an answer to the topic.
+
+## Stories and source relationships
+
+Items are consolidated into Stories so repeated posts do not dominate a Mission. Source families identify a shared publisher, repository, package, author, community, or declared upstream origin. Within a Story, items are classified as:
+
+```text
+origin · independent · same-family · update · echo
+```
+
+Favor original reporting and independent source families. Keep updates that materially change timing, magnitude, mechanism, or confidence. Treat the number of articles as volume, not corroboration.
+
+Source scorecards include useful yield, Mission contribution, independence, echo rate, health, speed, and cost. Collection cadence may accelerate, hold, slow, pause, or request repair inside Budget Governor limits.
+
+## Research Missions
+
+A Mission keeps:
+
+- the standing question and current thesis
+- matching Stories and source chronology
+- expected next event and date
+- decisions, forecasts, outcomes, and earlier answers
+- connected Memory Graph state
+- one Mission Computer working directory
+
+Use later source changes to confirm, revise, or close prior claims. A forecast should retain its review date and eventual outcome.
+
+## Memory and Mission Computers
+
+D1 is the canonical connected Memory Graph and global index. It links Stories, Missions, sources, claims, findings, questions, decisions, forecasts, and expectations. Dated checkpoints support comparison over time.
+
+Every Mission has a Cloudflare Computer filesystem with managed state, a bounded current source index, handoffs, notes, results, and exports. D1 remains canonical for collected material outside that workspace snapshot. The filesystem works without an execution backend. Optional Power Mode adds Worker shell and JavaScript execution.
+
+AI Search and Agent Memory are optional rebuildable projections. They are not canonical state.
+
+## Intelligence Packs
+
+A Pack can contain public sources, optional Companion sources, Missions, starter memory, source standards, deterministic routines, answer instructions, budgets, and update lineage.
+
+The cloud-only core is the default install lane. The optional Companion adds signed-in sources and a local copy of each Mission workspace. A Companion outage does not stop public collection, Mission state, memory recall, or prepared reasoning work.
+
+Personal changes are stored as overlays. Pack updates reapply the overlays and report conflicts for an explicit choice. The combined setup can be exported as a portable Pack fork.
+
+## Intelligence Routines
+
+Routines are bounded Cloudflare Workflow playbooks assembled from deterministic actions:
+
+```text
+refresh-sources · wait-for-ingest · rebuild-mission · sync-computer
+audit-memory · compile-context · prepare-research · checkpoint-memory
+```
+
+Routines refresh and prepare Mission work. They do not select or call a model.
+
+## Runtime selection
+
+Driftglass chooses among Worker, Kitesurf, Chromium, Mission Computer, and Companion according to access, persistence, health, and budget.
+
+Public cloud sources include Hacker News, Lobsters, Bluesky, arXiv, GitHub, npm, PyPI, Page Feeds, webpages, Email Workers, and manual capture. OpenAlex is an optional key-gated source. Public pages use direct HTTP. Owners can add Browser Rendering after installation for Kitesurf and Chromium fallback.
+
+The Companion supplies signed-in sources and local workspace mirroring. The self-hosted runtime is an experimental loopback profile using local SQLite and content-addressed files.
+
+## Sharing
+
+A reviewed public answer can become:
+
+- an expiring cited page
+- a standalone HTML, JSON, and Markdown copy
+- a credential-free Pack for continuing the same public question
+
+Public shares are compiled from public source material and the selected answer. Private Mission memory, source health, connection addresses, and operations state are excluded.
+
+## Discovery
+
+- Installation: `/install.md`
+- Research MCP: `/mcp`
+- Operations MCP: `/mcp/{private-operations-key}/ops`
+- OpenAPI: `/openapi.json`
+- MCP card: `/.well-known/mcp.json`
+- Product card: `/.well-known/driftglass.json`
+- Agent card: `/.well-known/agent.json`
+- Pack catalog: `/intelligence-packs/catalog.json`
+- Pack schema: `/intelligence-packs/schema.json`

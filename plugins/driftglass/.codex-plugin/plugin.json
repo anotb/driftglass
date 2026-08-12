@@ -1,0 +1,25 @@
+{
+  "name": "driftglass",
+  "version": "0.9.0",
+  "description": "Open Driftglass Today or answer an active Mission from saved evidence.",
+  "author": {
+    "name": "Driftglass"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Driftglass",
+    "shortDescription": "Open Today and answer active Mission questions.",
+    "longDescription": "Open today's Driftglass overview, ask what changed for an active Mission, or include connected sources such as Reddit and X when you ask. Driftglass supplies the evidence from the connected instance.",
+    "developerName": "Driftglass",
+    "category": "Productivity",
+    "capabilities": [
+      "Personal intelligence",
+      "Source-linked answers",
+      "Connected sources on request"
+    ],
+    "defaultPrompt": [
+      "What's new today in Driftglass?",
+      "What changed for my AI infrastructure Mission, and what should I watch?"
+    ]
+  }
+}

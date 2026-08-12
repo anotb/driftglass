@@ -1,0 +1,20 @@
+{
+  "name": "driftglass-companion",
+  "version": "0.9.0",
+  "sha256": "7009f34a024c63fed7d129330d8a37524d94646323ccd45341ba00820936410d",
+  "files": {
+    "driftglass-relay.mjs": {
+      "sha256": "7009f34a024c63fed7d129330d8a37524d94646323ccd45341ba00820936410d",
+      "bytes": 177882
+    },
+    "install.sh": {
+      "sha256": "d0d46216254b11516ecc6d5015cfa1471c18df7df792c048f17184c59f326c2f",
+      "bytes": 2270
+    },
+    "install.ps1": {
+      "sha256": "ac0bb2bb68bb25b82d0d7b00fc43036f9785282ea8dc5d5d94b9cbdbe135d546",
+      "bytes": 2362
+    }
+  },
+  "contentDigest": "sha256:f9f2bb08cec495c2e1b2f573c2980675eea890b5e0c8b5d24bf305eb006387ab"
+}

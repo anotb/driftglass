@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/icons/driftglass-mark.png" type="image/png" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#10131a" />
+    <meta name="description" content="Follow chosen sources and keep a current cited answer to questions that outlive the news cycle." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css?v=20260808.8" />
+    <title>Driftglass — personal intelligence</title>
+  </head>
+  <body>
+    <div id="login" class="login-shell">
+      <div class="login-card glass">
+        <p class="eyebrow">Personal intelligence for standing questions</p>
+        <h1>Driftglass</h1>
+        <p class="lede">Follow chosen sources, keep a current cited answer, and revisit it when the facts change.</p>
+        <form id="login-form">
+          <label for="secret">Owner key</label>
+          <div class="secret-row"><input id="secret" name="secret" type="password" autocomplete="current-password" placeholder="Enter your owner key" required /><button type="submit" class="primary">Open Driftglass</button></div>
+          <p id="login-error" class="error" role="alert"></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="app" class="app-shell" hidden>
+      <aside class="sidebar">
+        <a href="#today" class="brand"><picture><source media="(min-width: 521px)" srcset="/icons/driftglass-lockup.png" /><img class="brand-lockup" src="/icons/driftglass-mark.png" alt="Driftglass" /></picture></a>
+        <nav aria-label="Main navigation">
+          <button class="nav active" data-view="today">Today</button>
+          <button class="nav" data-view="missions">Missions</button>
+          <button class="nav" data-view="memory">Memory</button>
+          <button class="nav" data-view="sources">Sources & Packs</button>
+          <button class="nav" data-view="capture">Capture</button>
+          <button class="nav" data-view="companion">Companion</button>
+          <button class="nav" data-view="browser">Browse</button>
+          <button class="nav" data-view="integrations">Reasoning</button>
+          <button class="nav" data-view="system">Setup</button>
+        </nav>
+        <div class="sidebar-foot"><span id="health-dot" class="dot"></span><span id="health-label">Connecting</span><button id="logout" class="link-button">Lock</button></div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <div><p class="eyebrow" id="view-eyebrow">Questions you follow</p><h2 id="view-title">Today</h2></div>
+          <div class="top-actions"><button id="collect-now" class="secondary">Check sources</button><button id="share-briefing" class="secondary">Share Today</button><button id="generate" class="primary">Refresh Today</button></div>
+        </header>
+
+        <section id="today" class="view active-view">
+          <div id="onboarding" class="onboarding" hidden><div><p class="eyebrow">Start with a focused question</p><h3>Install one Intelligence Pack to start following a question.</h3><p>Choose a Pack, collect once, then open Today.</p></div><button class="primary jump-sources">Explore Packs</button></div>
+          <div id="stats" class="stats"></div>
+          <div id="mission-ribbon" class="stack-list"></div>
+          <section class="action-center-section"><div class="section-heading"><div><p class="eyebrow">Next steps</p><h3>Needs your attention</h3></div><span id="action-count" class="badge">0</span></div><div id="action-center" class="action-center-list"></div></section>
+          <div class="section-heading"><div><p class="eyebrow">Briefing</p><h3>What matters now</h3></div><input id="story-search" class="search" type="search" placeholder="Search" /></div>
+          <div id="stories" class="story-list empty-state"><strong>No updates yet.</strong><span>Install an Intelligence Pack, collect once, and Driftglass will begin following meaningful changes.</span></div>
+        </section>
+
+        <section id="missions" class="view">
+          <div class="split-grid">
+            <div>
+              <div class="section-heading compact"><div><p class="eyebrow">Persistent questions</p><h3>Your Missions</h3></div></div>
+              <div id="mission-list" class="stack-list"></div>
+            </div>
+            <div class="panel">
+              <p class="eyebrow">Create a Mission</p><h3>Keep one important question alive</h3>
+              <form id="mission-form" class="stack-form">
+                <label>Name<input name="name" required placeholder="AI advances in materials science" /></label>
+                <label>Question<textarea name="question" rows="4" required placeholder="Which AI advances are changing how new materials are discovered and validated?"></textarea></label>
+                <label>Signals to follow, one per line<textarea name="terms" rows="5" placeholder="autonomous laboratories&#10;materials foundation models&#10;experimental validation"></textarea></label>
+                <div class="form-row"><label>Purpose<select name="mode"><option value="watch">Stay current</option><option value="decision">Make a decision</option><option value="hypothesis">Test a belief</option><option value="event">Follow an expected event</option></select></label><label>Broader AI review<select name="researchPolicy"><option value="suggest">Suggest when it would help</option><option value="manual">Only when I ask</option><option value="always">Prepare for each meaningful update</option></select></label></div>
+                <label>Next signal that could change the answer <span class="micro">optional</span><input name="expectedNextEvent" placeholder="A launch, benchmark, filing, or decision" /></label>
+                <label>Expected by <span class="micro">optional</span><input name="expectedBy" type="date" /></label>
+                <details class="advanced-details">
+                  <summary>Timing and sensitivity</summary>
+                  <div class="stack-form space-top">
+                    <div class="form-row"><label>Source checks<select name="sprintPolicy"><option value="manual">When I ask</option><option value="scheduled">Automatic</option></select></label><label>Check interval<select name="cadenceMinutes"><option value="60">Hourly</option><option value="360" selected>Every 6 hours</option><option value="720">Every 12 hours</option><option value="1440">Daily</option><option value="10080">Weekly</option></select></label></div>
+                    <div class="form-row"><label>Remind me<select name="reminderLeadDays"><option value="0">On the expected date</option><option value="1">1 day before</option><option value="3" selected>3 days before</option><option value="7">1 week before</option></select></label><label>Surface changes<select name="alertThreshold"><option value="0.5">Earlier</option><option value="0.65" selected>Balanced</option><option value="0.8">Only when the signal is strong</option></select></label></div>
+                    <label>Importance<select name="priority"><option value="0.75">Low</option><option value="1.5" selected>Normal</option><option value="2.5">High</option></select></label>
+                  </div>
+                </details>
+                <input type="hidden" name="expectedEventStatus" value="pending" />
+                <input type="hidden" name="status" value="active" />
+                <p class="micro">Driftglass follows the sources and updates the Mission brief. Ask your model for a sourced answer when you need one.</p>
+                <button class="primary" type="submit">Create Mission</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <section id="memory" class="view">
+          <div class="hero-panel memory-hero"><div><p class="eyebrow">Memory</p><h3>Connected memory</h3><p>Driftglass links Missions, findings, decisions, forecasts, and their sources as the answer changes.</p></div></div>
+          <div id="memory-stats" class="stats space-top"></div><div id="memory-run-status" class="panel memory-run-status space-top"></div><div id="memory-audit" class="panel memory-audit space-top" hidden></div>
+          <div class="split-grid space-top">
+            <div class="panel"><div class="section-heading compact"><div><p class="eyebrow">Recall</p><h3>Search connected memory</h3></div><div class="top-actions"><button id="memory-checkpoint-create" class="secondary">Save current state</button><button id="memory-checkpoint-compare" class="secondary">Compare states</button><button id="memory-audit-run" class="secondary">Check memory</button><button id="memory-refresh" class="secondary">Refresh memory</button></div></div><form id="memory-search-form" class="inline-search"><input name="query" placeholder="Hormuz LNG · AI-designed materials · semiconductor supply" /><input name="ref" placeholder="optional mission:… or story:…" /><button class="primary" type="submit">Recall</button></form><div id="memory-nodes" class="memory-node-list"></div></div>
+            <div class="panel"><div class="section-heading compact"><div><p class="eyebrow">Relationships</p><h3>Why things connect</h3></div></div><div id="memory-edges" class="memory-edge-list"></div></div>
+          </div>
+          <div class="panel memory-checkpoint-panel space-top"><div class="section-heading compact"><div><p class="eyebrow">Saved state</p><h3>Memory over time</h3></div><span class="badge">what changed in the standing answer</span></div><div id="memory-checkpoints"></div></div>
+          <div class="split-grid space-top">
+            <div class="panel"><div class="section-heading compact"><div><p class="eyebrow">History</p><h3>Memory timeline</h3></div></div><div id="memory-timeline" class="timeline-list"></div></div>
+            <div class="panel"><div class="section-heading compact"><div><p class="eyebrow">Review before saving</p><h3>Proposed memory changes</h3></div><span id="memory-proposal-count" class="badge">0</span></div><div id="memory-proposals" class="stack-list"></div></div>
+          </div>
+        </section>
+
+        <section id="sources" class="view">
+          <div class="smart-add">
+            <div><p class="eyebrow">Smart Add</p><h3>Paste a repo, handle, category, URL, or topic</h3><p>Driftglass recognizes the shape and proposes the smallest useful source configuration.</p></div>
+            <form id="discover-form" class="discover-form"><input name="input" required placeholder="energy security · @handle.bsky.social · cond-mat.mtrl-sci · https://…" /><button class="primary" type="submit">Discover</button><div id="discover-results" class="suggestions"></div></form>
+          </div>
+          <div class="section-heading"><div><p class="eyebrow">Ready-made topics</p><h3>Intelligence Packs</h3></div><div class="top-actions"><span class="badge">review before installing</span><button id="check-pack-updates" class="secondary">Check updates</button></div></div>
+          <div id="intelligence-pack-grid" class="pack-grid"></div>
+          <div class="panel community-lens-panel">
+            <div><p class="eyebrow">Community Intelligence Packs</p><h3>Install sources, Missions, memory, and reasoning method from one URL</h3><p>A Pack adds sources, Missions, and a research method for one topic. Preview it, then install the parts you want.</p></div>
+            <form id="intelligence-pack-url-form" class="discover-form"><input name="url" type="url" required placeholder="https://raw.githubusercontent.com/…/pack.json" /><button class="primary" type="submit">Preview Pack</button></form>
+            <div class="top-actions"><label class="secondary file-button">Import Pack file<input id="intelligence-pack-file-import" type="file" accept="application/json" hidden /></label><a class="secondary" href="/intelligence-packs/schema.json" target="_blank" rel="noopener noreferrer">Pack format</a></div>
+          </div>
+          <details class="advanced-details legacy-lenses"><summary>Starter Lenses and Lens v1 compatibility</summary><div class="section-heading"><div><p class="eyebrow">Lightweight source bundles</p><h3>Starter Lenses</h3></div><div id="pack-filter" class="chip-row"></div></div><div id="packs" class="pack-grid"></div><form id="lens-url-form" class="discover-form"><input name="url" type="url" required placeholder="https://raw.githubusercontent.com/…/lens.json" /><button class="secondary" type="submit">Install Lens v1</button></form><label class="secondary file-button">Import Lens file<input id="lens-file-import" type="file" accept="application/json" hidden /></label></details>
+          <div class="panel source-value-panel"><div class="section-heading"><div><p class="eyebrow">Every source should earn its place</p><h3>Source value and timing</h3></div><span class="badge">quality over volume</span></div><p>Driftglass groups repeated coverage, tracks which sources improve your Stories and Missions, and checks useful sources more often.</p><div id="source-scorecards" class="source-scorecards"></div></div>
+          <div class="section-heading"><div><p class="eyebrow">Configured</p><h3>Source health</h3></div><button id="toggle-source-form" class="secondary">Add custom source</button></div>
+          <div id="source-form-panel" class="split-grid" hidden>
+            <div id="source-list" class="table-wrap"></div>
+            <div class="panel">
+              <p class="eyebrow">Add a source</p><h3>Tell Driftglass what to watch</h3>
+              <form id="source-form" class="stack-form">
+                <label>Name<input name="name" required placeholder="IEA gas market updates" /></label>
+                <label>Type<select name="kind" id="source-kind"><option value="web">Monitor one webpage</option><option value="web_feed">Discover new links from a page</option><option value="github_releases">GitHub releases</option><option value="github_activity">GitHub activity</option><option value="npm_releases">npm releases</option><option value="pypi_releases">PyPI releases</option><option value="hackernews">Hacker News</option><option value="lobsters">Lobsters</option><option value="bluesky">Bluesky</option><option value="arxiv">arXiv</option><option value="openalex">OpenAlex research graph</option><option value="collector">Companion capability</option></select></label>
+                <div id="source-config-fields"></div>
+                <div class="form-row"><label>Every (minutes)<input name="scheduleMinutes" type="number" min="15" value="120" /></label><label>Weight<input name="weight" type="number" min="0.1" max="3" step="0.1" value="1" /></label></div>
+                <button class="primary" type="submit">Add source</button>
+              </form>
+            </div>
+          </div>
+          <div id="source-list-standalone" class="table-wrap"></div>
+        </section>
+
+        <section id="capture" class="view">
+          <div class="hero-panel capture-hero"><div><p class="eyebrow">Save a source</p><h3>Add a page to Driftglass</h3><p>Paste a public URL. Driftglass tries a direct read, then Kitesurf or Chromium when the page needs rendering.</p><form id="capture-form" class="capture-form"><input name="url" type="url" required placeholder="https://…" /><input name="title" placeholder="Optional note or title" /><button class="primary" type="submit">Save</button></form><p id="capture-result" class="success"></p><div class="capture-tools"><p class="micro">Drag this to your bookmarks bar:</p><a id="bookmarklet" class="bookmarklet" href="#">Save to Driftglass</a></div></div></div>
+          <div class="split-grid space-top">
+            <div class="panel"><p class="eyebrow">Email intake</p><h3>Forward newsletters and links</h3><p>In Cloudflare mode, route an address such as <code>save@yourdomain.com</code> or <code>newsletters@yourdomain.com</code> to Driftglass with Email Routing. The message and its links stay together.</p><a href="https://developers.cloudflare.com/email-service/get-started/route-emails/#configure-routing-to-worker" target="_blank" rel="noopener noreferrer">Set up email intake</a><div id="email-receipts" class="stack-list"></div></div>
+            <div class="panel"><p class="eyebrow">Move or restore</p><h3>Take your setup with you</h3><p>Your sources, Missions, research methods, saved memory, interests, views, and preferences travel in one file.</p><div class="top-actions"><button id="export-config" class="secondary">Download setup</button><label class="secondary file-button">Restore from file<input id="import-config" type="file" accept="application/json" hidden /></label></div></div>
+          </div>
+        </section>
+
+        <section id="companion" class="view">
+          <div class="hero-panel companion-hero"><div><p class="eyebrow">Optional Companion</p><h3>Keep Mission workspaces close</h3><p>Pair one of your computers to mirror Mission workspaces into ordinary local files. When you want Reddit, X, or another signed-in source, add a dedicated browser profile afterward.</p><div class="steps"><div><span>1</span><p>Generate a 15-minute pairing code here.</p></div><div><span>2</span><p>Run the installer and pairing command.</p></div><div><span>3</span><p>Add Reddit and X only if you want those sources.</p></div></div><button id="pair" class="primary">Generate pairing code</button><div id="pair-output" class="code-card" hidden></div></div><div class="platform-cloud"><span>macOS</span><span>Windows</span><span>Linux</span></div></div>
+          <div class="section-heading"><div><p class="eyebrow">Connected devices</p><h3>Your Companions</h3></div></div><div id="collector-list" class="table-wrap"></div>
+          <div class="section-heading"><div><p class="eyebrow">Available through your browser</p><h3>Signed-in sources</h3></div><input id="catalog-search" class="search" placeholder="Search available sources" /></div><div id="catalog-list" class="pack-grid"></div>
+        </section>
+
+        <section id="browser" class="view">
+          <div class="split-grid">
+            <div class="panel"><p class="eyebrow">Page reader</p><h3>Read a public page</h3><form id="browser-form" class="stack-form"><label>URL<input name="url" type="url" required placeholder="https://example.com" /></label><div class="form-row"><label>Reader<select name="strategy"><option value="adaptive">Choose automatically</option><option value="kitesurf">Quick reader only</option><option value="chromium">Full browser only</option></select></label><label>Focus on<input name="selector" placeholder="optional CSS selector" /></label></div><button class="primary" type="submit">Read page</button></form><pre id="browser-result" class="code-card">Paste a page to see what Driftglass can read.</pre></div>
+            <div class="panel"><p class="eyebrow">Learns which reader works</p><h3>Browse reliability</h3><p>Driftglass remembers which path works for each site. Kitesurf handles quick reads; Chromium catches pages that need a full browser.</p><div id="render-health"></div></div>
+          </div>
+          <div class="panel space-top"><p class="eyebrow">Mission workspace</p><h3>A working folder for every standing question</h3><p>Each Mission keeps a current source snapshot, notes, its answer, and exports together. Power Mode adds local analysis tools.</p><div class="feature-list"><span>Current answer</span><span>Source snapshot</span><span>Working notes</span><span>Downloadable copy</span></div><div id="deep-dive-status" class="integration-status"></div></div>
+        </section>
+
+        <section id="integrations" class="view">
+          <div class="hero-panel chatgpt-hero"><div><p class="eyebrow">Use the model subscription you already have</p><h3>Driftglass brings the context. Your model answers the question.</h3><p>Ask what matters today or open a Mission. Driftglass supplies the question, sources, prior conclusions, and changes since the last answer.</p><div class="feature-list"><span>Today brief</span><span>Mission answers</span><span>Source-linked results</span><span>ChatGPT, Claude, and other MCP clients</span></div></div></div>
+          <div id="reasoning-providers" class="provider-grid space-top"></div>
+          <div class="panel judgment-panel space-top">
+            <div class="section-heading"><div><p class="eyebrow">Saved answers</p><h3>Follow the question, not the feed</h3></div><div class="top-actions"><button id="refresh-judgment" class="secondary" type="button">Check for new work</button><span class="badge">works with your model</span></div></div>
+            <p>Ask a question with the current sources, save the answer, and compare it with a later answer when the sources change.</p>
+            <div id="judgment-summary" class="judgment-summary"></div>
+            <div class="judgment-grid">
+              <section><div class="section-heading compact"><div><p class="eyebrow">Worth reasoning about now</p><h4>Questions for your model</h4></div></div><div id="judgment-inbox" class="stack-list"></div></section>
+              <section><div class="section-heading compact"><div><p class="eyebrow">Saved answers</p><h4>Answers and sources</h4></div></div><div id="judgment-receipts" class="stack-list"></div></section>
+              <section><div class="section-heading compact"><div><p class="eyebrow">Outcome memory</p><h4>Decisions & forecasts</h4></div></div><form id="decision-form" class="stack-form compact-form"><div class="form-row"><label>Type<select name="decisionType"><option value="decision">Decision</option><option value="forecast">Forecast</option><option value="commitment">Commitment</option><option value="thesis">Thesis</option></select></label><label>How certain are you?<select name="confidence"><option value="0.5">Tentative</option><option value="0.7" selected>Supported</option><option value="0.9">Strongly supported</option></select></label></div><label>Title<input name="title" required maxlength="180" placeholder="Increase semiconductor inventory before a shipping disruption" /></label><label>Decision or prediction<textarea name="statement" rows="3" required></textarea></label><div class="form-row"><label>Expected outcome<input name="expectedOutcome" /></label><label>Review on<input name="reviewAt" type="date" /></label></div><button class="secondary" type="submit">Record</button></form><div id="judgment-decisions" class="stack-list"></div></section>
+              <section><div class="section-heading compact"><div><p class="eyebrow">Repeatable research</p><h4>Scheduled research</h4></div></div><div id="judgment-routines" class="stack-list"></div></section>
+            </div>
+            <section id="reasoning-result-panel" class="reasoning-result-panel" hidden><div class="section-heading compact"><div><p class="eyebrow">Save the answer</p><h4>Save this answer and its sources</h4></div><button id="close-reasoning-result" class="secondary" type="button">Close</button></div><div id="reasoning-receipt-meta" class="story-meta"></div><div id="reasoning-comparison" class="reasoning-comparison"></div><form id="reasoning-result-form" class="stack-form"><input name="receiptId" type="hidden" /><div class="form-row"><label>Model service<select name="provider"><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="grok">Grok</option><option value="generic">Other</option></select></label><label>Model<input name="model" placeholder="optional model label" /></label><label>How well supported is the answer?<select name="confidence"><option value="0.5">Tentative</option><option value="0.7" selected>Supported</option><option value="0.9">Strongly supported</option></select></label></div><label>Answer<textarea name="response" rows="10" required placeholder="Paste the answer or the structured Driftglass result block."></textarea></label><label>Summary for a plain-text answer<textarea name="summary" rows="3" placeholder="Leave blank when the structured result includes summary."></textarea></label><details class="advanced-details"><summary>Structured answer and proposed memory</summary><label>Structured result JSON<textarea name="structuredResult" rows="5" placeholder='{"schemaVersion":"1","answerMode":"synthesis","summary":"…","confidence":0.8,"strongestEvidence":[],"citations":[]}'></textarea></label><label>Memory change JSON<textarea name="memoryPatch" rows="5" placeholder="Optional typed proposal. Driftglass holds it for your approval."></textarea></label></details><button class="primary" type="submit">Save answer</button></form></section>
+          </div>
+          <div class="panel dossier-panel space-top"><div class="section-heading"><div><p class="eyebrow">Question brief</p><h3>The current picture of one question</h3></div><span id="dossier-quality" class="badge">not prepared</span></div><p>Pull together the current answer, strongest source support, competing explanations, and open questions.</p><form id="dossier-form" class="stack-form"><div class="form-row"><label>Scope<select name="scopeKind"><option value="global">Global</option><option value="mission">Mission</option><option value="story">Story</option><option value="query">Query</option></select></label><label>Mission name or Story reference<input name="scopeId" placeholder="optional" /></label></div><label>Question or topic<input name="query" placeholder="optional for global; required for Query" /></label><button class="primary" type="submit">Prepare brief</button></form><textarea id="dossier-output" rows="18" readonly placeholder="The question brief appears here."></textarea><div class="top-actions"><button id="copy-dossier" class="secondary" type="button">Copy brief</button><button id="download-dossier" class="secondary" type="button">Download Markdown</button></div></div>
+          <div class="panel space-top"><div class="section-heading"><div><p class="eyebrow">Research brief</p><h3>Prepare a question for your model</h3></div></div><p>Choose the question, sources, and length. Driftglass creates a cited brief you can copy or send through MCP.</p><form id="reasoning-form" class="stack-form"><div class="form-row"><label>Use with<select name="target"><option value="chatgpt">ChatGPT</option><option value="claude">Claude</option><option value="grok">Grok</option><option value="generic">Another capable model</option></select></label><label>What should it do?<select name="task"><option value="daily-brief">Prepare today’s brief</option><option value="investigate" selected>Investigate a question</option><option value="decision">Support a decision</option><option value="challenge">Challenge the current answer</option><option value="deep-research">Review more broadly</option><option value="memory-update">Suggest a memory update</option></select></label></div><div class="form-row"><label>Use sources from<select name="scopeKind"><option value="global">Everything relevant</option><option value="mission">One Mission</option><option value="story">One Story</option></select></label><label>Mission name or Story reference<input name="scopeId" placeholder="optional" /></label></div><div class="form-row"><label>Sources<select name="sourceScope"><option value="personal" selected>Personal + open</option><option value="open">Open sources</option><option value="share">Prepare for sharing</option></select></label><label>Brief depth<select name="tokenBudget"><option value="6000">Focused</option><option value="12000">Balanced</option><option value="24000" selected>Thorough</option><option value="50000">Extended</option></select></label></div><p class="micro">Personal includes excerpts from connected sources. Prepare for sharing uses public sources and omits personal memory.</p><label>Question<textarea name="objective" rows="3" placeholder="Has Hormuz reopened enough for LNG markets to normalize?"></textarea></label><button class="primary reasoning-build" type="submit">Prepare brief</button></form><div id="reasoning-quality" class="context-quality empty"><strong>Brief details appear after preparation.</strong><span>Source count, source groups, and limits appear here.</span></div><textarea id="reasoning-output" rows="18" readonly placeholder="Prepared brief appears here."></textarea><label class="micro"><input id="include-operations-kit" type="checkbox" /> Include the update connection so the model can save suggestions for review</label><div class="top-actions"><button id="copy-reasoning-output" class="secondary">Copy brief</button><button id="download-reasoning-skill" class="secondary">Download model instructions</button><button id="download-interface-kit" class="primary">Download connection kit</button></div></div>
+          <details class="reasoning-advanced">
+            <summary><span><strong>Connections, alerts, and optional retrieval</strong><small>Open this when configuring clients or advanced retrieval.</small></span></summary>
+            <div class="reasoning-advanced-body"><div class="split-grid integration-grid">
+            <div class="panel"><p class="eyebrow">Proactive</p><h3>Scheduled Task</h3><textarea id="task-prompt" rows="17" readonly></textarea><button class="secondary copy" data-target="task-prompt">Copy task prompt</button></div>
+            <div id="remote-reasoning-connections" class="panel"><p class="eyebrow">Connection details</p><h3>Use Driftglass elsewhere</h3><p>Most people can connect from the cards above. Open these details for another MCP client or a scheduled feed.</p><details class="advanced-details"><summary>Show connection addresses</summary><label>Research connection<input id="mcp-url" readonly /></label><button class="secondary copy" data-target="mcp-url">Copy connection</button><label>Allow updates<input id="operations-mcp-url" readonly /></label><button class="secondary copy" data-target="operations-mcp-url">Copy update connection</button><label>Today feed<input id="packet-url" readonly /></label><button class="secondary copy" data-target="packet-url">Copy Today feed</button></details></div>
+          </div>
+
+          <div class="panel semantic-memory-panel space-top"><div class="section-heading"><div><p class="eyebrow">Optional Cloudflare AI Search</p><h3>Search by meaning</h3></div><div id="semantic-memory-status" class="integration-status"></div></div><p>Search across Stories, Missions, and briefings by meaning.</p><div class="top-actions"><button id="semantic-memory-setup" class="secondary" type="button">Enable AI Search</button><button id="semantic-memory-sync" class="primary" type="button" disabled>Update search</button></div><form id="semantic-memory-search" class="inline-search semantic-search"><input name="query" required disabled placeholder="How have AI-designed materials moved from benchmarks to laboratory results?" /><select name="kind" disabled><option value="">Everything</option><option value="story">Stories</option><option value="mission">Missions</option><option value="briefing">Briefings</option></select><button class="secondary" type="submit" disabled>Search</button></form><div id="semantic-memory-results" class="semantic-results"><p class="micro">Enable AI Search and update it after adding Stories or Missions.</p></div><details class="advanced-details"><summary>Advanced: private search feed</summary><label>Private feed URL<input id="ai-search-corpus-url" readonly /></label><button class="secondary copy" data-target="ai-search-corpus-url">Copy private feed</button></details></div>
+          <div class="panel pulse-panel space-top"><div class="section-heading"><div><p class="eyebrow">Only interrupt me when it matters</p><h3>Scheduled check</h3></div><span class="badge">new or meaningfully changed</span></div><p>Use this feed with a recurring ChatGPT task. Changed items become alerts with source links.</p><label>Update feed<input id="pulse-packet-url" readonly /></label><button class="secondary copy" data-target="pulse-packet-url">Copy update feed</button><textarea id="pulse-task-prompt" rows="11" readonly></textarea><button class="secondary copy" data-target="pulse-task-prompt">Copy task instructions</button></div>
+          <div class="section-heading"><div><p class="eyebrow">Focused automations</p><h3>Mission task prompts</h3></div></div><div id="mission-integrations" class="stack-list"></div></div>
+          </details>
+        </section>
+
+        <section id="system" class="view">
+          <div id="readiness-card" class="panel readiness-panel"><div class="section-heading"><div><p class="eyebrow">Setup check</p><h3>Ready to run</h3></div><span id="readiness-score" class="badge">checking</span></div><div id="readiness-checks" class="readiness-grid"></div></div>
+          <div id="ingest-recovery-card" class="panel ingest-recovery-panel"><div class="section-heading"><div><p class="eyebrow">Collection safety</p><h3>Failed collection</h3></div><span id="ingest-recovery-status" class="badge">checking</span></div><p>Retry a failed source or dismiss it. This screen shows status only.</p><div id="ingest-recovery-summary" class="ingest-recovery-summary"></div><div id="ingest-dead-letters"></div></div>
+          <div class="space-top">
+            <div class="panel"><p class="eyebrow">What matters to you</p><h3>Interest terms</h3><p>These guide what rises in Today. Missions hold the narrower questions you keep returning to.</p><form id="interest-form" class="stack-form"><textarea id="interest-terms" rows="15" placeholder="AI for materials science&#10;Hormuz LNG flows&#10;semiconductor supply"></textarea><button class="primary" type="submit">Save interests</button></form></div>
+          </div>
+          <details class="reasoning-advanced space-top"><summary><span><strong>Where Driftglass does the work</strong><small>See which collection paths are available.</small></span></summary><div class="reasoning-advanced-body"><div class="panel"><div class="section-heading"><div><p class="eyebrow">Automatic choices</p><h3>Use the simplest capable path</h3></div><span id="runtime-policy-note" class="badge">automatic</span></div><p>Driftglass chooses the simplest available path for each source and Mission.</p><div id="runtime-fabric" class="runtime-fabric"></div></div></div></details>
+          <div class="panel space-top"><div class="section-heading"><div><p class="eyebrow">Keep costs predictable</p><h3>Usage plan</h3></div><select id="budget-profile"><option value="free">Free</option><option value="cheap">Low-cost</option></select></div><p>Driftglass saves capacity before expensive work. If the plan is full, it waits or uses a lighter path.</p><div class="top-actions"><label class="check-row"><input id="workers-paid-confirmed" type="checkbox" />Workers Paid is active</label><span id="execution-capacity-state" class="micro">Free plan limits active</span></div><div id="budget-bars" class="budget-grid"></div></div>
+          <div class="panel space-top"><div class="section-heading"><div><p class="eyebrow">Learns from your choices</p><h3>Preferences</h3></div><button id="reset-taste" class="secondary">Reset preferences</button></div><p>Story feedback tunes topics and sources while keeping every ranking explainable.</p><div id="taste-profile"></div></div>
+          <div class="panel space-top"><div class="section-heading"><div><p class="eyebrow">Share</p><h3>Share what matters</h3></div><span class="badge">expiring links</span></div><p>Turn Today, a Mission, or a Story into a page with the answer and its sources. Download a copy to keep or pass along.</p><div id="share-list" class="stack-list"></div></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="mission-dialog" class="mission-dialog">
+      <button class="dialog-close" aria-label="Close">Close</button>
+      <div class="adapter-dialog-head"><p class="eyebrow">Persistent question</p><h2 id="mission-dialog-title">Mission settings</h2><p class="dialog-summary">Keep the question, expected signals, and current outcome clear.</p></div>
+      <form id="mission-edit-form" class="stack-form">
+        <input name="id" type="hidden" />
+        <div class="form-row"><label>Name<input name="name" required maxlength="180" /></label><label>State<select name="status"><option value="active">Active</option><option value="paused">Paused</option><option value="complete">Complete</option></select></label></div>
+        <label>Question<textarea name="question" rows="3"></textarea></label>
+        <label>Signals to follow, one per line<textarea name="terms" rows="5"></textarea></label>
+        <div class="form-row"><label>Purpose<select name="mode"><option value="watch">Stay current</option><option value="decision">Make a decision</option><option value="hypothesis">Test a belief</option><option value="event">Follow an expected event</option></select></label><label>Broader AI review<select name="researchPolicy"><option value="manual">Only when I ask</option><option value="suggest">Suggest when it would help</option><option value="always">Prepare for each meaningful update</option></select></label></div>
+        <label>Next signal that could change the answer<input name="expectedNextEvent" /></label>
+        <div class="form-row"><label>Expected by<input name="expectedBy" type="date" /></label><label>What happened<select name="expectedEventStatus"><option value="pending">Still expected</option><option value="none">Not set</option><option value="occurred">Occurred</option><option value="missed">Did not happen</option><option value="rescheduled">Rescheduled</option></select></label></div>
+        <details class="advanced-details">
+          <summary>Timing and sensitivity</summary>
+          <div class="stack-form space-top">
+            <div class="form-row"><label>Source checks<select name="sprintPolicy"><option value="manual">When I ask</option><option value="scheduled">Automatic</option></select></label><label>Check interval<select name="cadenceMinutes"><option value="60">Hourly</option><option value="180">Every 3 hours</option><option value="360">Every 6 hours</option><option value="720">Every 12 hours</option><option value="1440">Daily</option><option value="10080">Weekly</option></select></label></div>
+            <div class="form-row"><label>Remind me<select name="reminderLeadDays"><option value="0">On the expected date</option><option value="1">1 day before</option><option value="3">3 days before</option><option value="7">1 week before</option></select></label><label>Surface changes<select name="alertThreshold"><option value="0.5">Earlier</option><option value="0.65">Balanced</option><option value="0.8">Only when the signal is strong</option></select></label></div>
+            <label>Importance<select name="priority"><option value="0.75">Low</option><option value="1.5">Normal</option><option value="2.5">High</option></select></label>
+          </div>
+        </details>
+        <div class="form-row"><label>Outcome<select name="outcomeStatus"><option value="open">Still open</option><option value="resolved">Resolved</option><option value="invalidated">Belief disproved</option><option value="superseded">Replaced by a new question</option></select></label></div>
+        <label>What was learned or decided<textarea name="outcomeSummary" rows="3" placeholder="A concise conclusion that will still make sense later"></textarea></label>
+        <button class="primary" type="submit">Save Mission</button>
+      </form>
+      <section class="mission-ledger"><div class="section-heading compact"><div><p class="eyebrow">What changed over time</p><h3>Mission history</h3></div></div><div id="mission-event-list" class="stack-list"></div><form id="mission-event-form" class="stack-form"><input name="missionId" type="hidden" /><div class="form-row"><label>Kind<select name="eventType"><option value="signal">New signal</option><option value="expected-event">Expected event</option><option value="outcome">Outcome</option><option value="escalation">Needs attention</option><option value="note">Note</option></select></label><label>Title<input name="title" required maxlength="300" /></label></div><label>Detail<textarea name="detail" rows="3"></textarea></label><button class="secondary" type="submit">Add to history</button></form></section>
+    </dialog>
+    <dialog id="research-dialog" class="research-dialog"><button class="dialog-close" aria-label="Close">Close</button><div id="research-detail"></div></dialog>
+    <dialog id="share-dialog" class="share-dialog"><button class="dialog-close" aria-label="Close">Close</button><div id="share-detail"></div></dialog>
+    <dialog id="story-dialog"><button class="dialog-close" aria-label="Close">Close</button><div id="story-detail"></div></dialog>
+    <dialog id="adapter-dialog" class="adapter-dialog"><button class="dialog-close" aria-label="Close">Close</button><div class="adapter-dialog-head"><p class="eyebrow">Signed-in browser source</p><h2 id="adapter-title">Add source</h2><p id="adapter-description" class="dialog-summary"></p><code id="adapter-command" class="command-chip"></code></div><form id="adapter-form" class="stack-form"><div class="form-row"><label>Companion<select id="adapter-collector" name="collectorId" required></select></label><label>Source name<input id="adapter-name" name="name" maxlength="160" required /></label></div><div id="adapter-fields" class="adapter-fields"></div><div class="form-row"><label>Collect every (minutes)<input name="scheduleMinutes" type="number" min="15" max="10080" value="120" /></label><label>Signal weight<input name="weight" type="number" min="0.1" max="3" step="0.1" value="1.2" /></label></div><label class="check-row adapter-check"><input name="runNow" type="checkbox" checked /><span><strong>Collect immediately</strong><small>Start the first collection as soon as the source is created.</small></span></label><button class="primary" type="submit">Add source</button></form></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/app.js?v=20260808.8"></script>
+    <script type="module" src="/webmcp.js?v=20260808.8"></script>
+  </body>
+</html>

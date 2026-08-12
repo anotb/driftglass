@@ -1,0 +1,71 @@
+{
+  "name": "Driftglass",
+  "version": "0.9.0",
+  "description": "Personal intelligence for standing questions: chosen sources become developing Stories, current cited answers, connected memory, decisions, forecasts, Intelligence Packs, and one workspace per Mission.",
+  "documentation": "/llms-full.txt",
+  "installation": "/install.md",
+  "openapi": "/openapi.json",
+  "interfaces": {
+    "dashboard": "/",
+    "daily_packet": "/packet/{private-read-key}/latest.md",
+    "pulse_packet": "/packet/{private-read-key}/pulse.md",
+    "mission_packet": "/packet/{private-read-key}/mission/{mission-id}.md",
+    "deep_research_handoff": "/packet/{private-read-key}/mission/{mission-id}/deep-research.md",
+    "memory": "/api/memory",
+    "memory_audit": "/api/memory/audit",
+    "reasoning_compiler": "/api/reasoning/compile",
+    "reasoning_interface_kit": "/api/reasoning/interface-kit.zip",
+    "intelligence_pack_catalog": "/intelligence-packs/catalog.json",
+    "intelligence_pack_schema": "/intelligence-packs/schema.json",
+    "budget": "/api/budget",
+    "public_card": "/share/{share-token}",
+    "drop_capsule": "/share/{share-token}/drop.zip",
+    "mission_computer": "/api/missions/{mission-id}/computer",
+    "semantic_memory_status": "/api/ai-search/status",
+    "mcp_reasoning": "/mcp",
+    "mcp_reasoning_legacy": "/mcp/{private-read-key}",
+    "mcp_operations": "/mcp/{private-operations-key}/ops",
+    "memory_refresh": "/api/memory/refresh",
+    "judgment": "/api/judgment",
+    "reasoning_tasks": "/api/reasoning/tasks",
+    "reasoning_receipts": "/api/reasoning/receipts",
+    "decisions": "/api/decisions",
+    "routines": "/api/routines",
+    "source_scorecards": "/api/source-scorecards",
+    "evidence_lineage": "/api/evidence/lineage",
+    "adaptive_cadence": "/api/sources/cadence",
+    "runtime_fabric": "/api/runtime",
+    "living_dossier": "/api/dossiers",
+    "memory_checkpoints": "/api/memory/checkpoints",
+    "decision_ledger": "/api/decisions"
+  },
+  "skills": [
+    "continuously collect useful public sources with optional signed-in sources through the Companion",
+    "collapse repeated coverage into evolving Stories and distinguish origin, independent corroboration, same-family repetition, echoes, and updates",
+    "operate standing Research Missions with expected events, durable Workflows, one Cloudflare Computer per Mission, and deterministic Intelligence Routines",
+    "maintain connected memory over time with a visible source trail, contradictions, expectations, decisions, and approved changes",
+    "prepare fixed, hashed evidence snapshots so ChatGPT, Claude, Grok, or another capable model can reason over the same traceable evidence",
+    "compare subscription-model results without introducing a mandatory model API or hidden autonomous model loop",
+    "record decisions, forecasts, reviews, outcomes, and calibration",
+    "score source independence and usefulness, then adapt collection cadence without exceeding the selected application budget",
+    "apply Pack updates over local overlays and surface conflicts for a choice",
+    "publish evidence-linked pages, downloadable copies, forkable Packs, Agent Skills, and model-ready evidence briefs"
+  ],
+  "reasoning_surfaces": {
+    "chatgpt": "Driftglass plugin and OAuth MCP, Scheduled Tasks over focused packets, exact evidence snapshots, and Deep Research handoffs for broad source expansion.",
+    "claude": "Compact remote MCP, Agent Skill, exact Markdown/JSON evidence snapshots, and optional local Mission workspace access through Claude Code.",
+    "grok": "Exact evidence snapshots and compact MCP where supported; Driftglass does not depend on consumer-site automation.",
+    "generic": "Compact MCP or a hashed Markdown/JSON evidence snapshot with an evidence check, source trail, and requested answer shape."
+  },
+  "memory": {
+    "canonical": "D1 sparse epistemic graph",
+    "semantic_accelerator": "optional Cloudflare AI Search",
+    "agent_memory_bridge": "optional private-beta checkpoint bridge"
+  },
+  "budget_profiles": [
+    "free",
+    "cheap",
+    "custom"
+  ],
+  "interface_policy": "Use Research for Today, Missions, Stories, sources, and memory. Connect Allow updates when the user wants to save an answer, decision, Pack change, Computer note, or memory proposal."
+}

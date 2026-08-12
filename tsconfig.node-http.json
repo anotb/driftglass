@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "ESNext.Disposable"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "useDefineForClassFields": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "allowJs": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/http/contracts.ts",
+    "src/http/router.ts",
+    "src/runtime/node/layout.ts",
+    "src/runtime/node/http/config.ts",
+    "src/runtime/node/http/assets.ts",
+    "src/runtime/node/http/adapter.ts",
+    "src/runtime/node/http/server.ts"
+  ]
+}

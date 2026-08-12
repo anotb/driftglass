@@ -1,0 +1,12 @@
+interface:
+  display_name: "Explore Driftglass Today and Missions"
+  short_description: "Open Today, answer a Mission, or use connected sources"
+  default_prompt: "Use $answer-mission to show what's new today in Driftglass."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "driftglass"
+      description: "Use Driftglass Today, active Missions, and requested connected sources"
+      transport: "streamable_http"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "driftglass-agent-memory-bridge",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-07",
+  "compatibility_flags": ["nodejs_compat"],
+  "agent_memory": [
+    { "binding": "MEMORY", "namespace": "driftglass" }
+  ],
+  "vars": { "APP_NAME": "Driftglass Agent Memory Bridge" },
+  "observability": { "enabled": true }
+}

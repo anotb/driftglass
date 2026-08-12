@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "2",
+  "publicEvidenceOnly": true,
+  "kind": "mission",
+  "title": "Has Hormuz reopened enough for the gas market to normalize?",
+  "generatedAt": "2026-07-07T14:00:00.000Z",
+  "reviewedAnswer": {
+    "answer": "No. Hormuz traffic is recovering, but LNG supply has not normalized. The bottleneck has moved from the Strait to damaged Qatari export capacity: replacement supply has contained most of the loss, while the Ras Laffan repair schedule sets a multi-year recovery clock.",
+    "keyJudgments": [
+      {
+        "text": "Replacement supply narrowed the gap: From March through June, Qatar and UAE loadings were about 35 bcm lower than a year earlier while production elsewhere rose about 27 bcm; global LNG output still fell 4%. Substitution prevented a deeper loss without restoring pre-shock supply.",
+        "citationUrls": [
+          "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary"
+        ]
+      },
+      {
+        "text": "Damage outlasts reopening: Reopening cannot restore output from two damaged Ras Laffan trains that removed 17% of Qatar's export capacity. With repairs expected to take up to five years, plant capacity now sets part of the recovery clock.",
+        "citationUrls": [
+          "https://www.eia.gov/todayinenergy/detail.php?id=67484"
+        ]
+      },
+      {
+        "text": "Asia's premium redirected flexible cargoes: Weaker demand and cargo diversion helped lower prices while supply stayed impaired. Asia's $2.1 per MBtu premium pulled flexible cargoes east, showing how prices can normalize before physical supply; the IEA still estimates 140 bcm of cumulative LNG losses through 2030.",
+        "citationUrls": [
+          "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary"
+        ]
+      }
+    ],
+    "alternativeCase": {
+      "text": "New non-Gulf capacity could normalize the wider market before Qatar repairs its damaged trains. The IEA expects close to 50 bcm from new projects and more than 10 bcm from existing producers; if the Strait fully reopens in Q3 and undamaged facilities return in Q4, global supply could hold flat in 2026 despite Qatar’s outage.",
+      "citationUrls": [
+        "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary"
+      ]
+    },
+    "signposts": [
+      {
+        "text": "Normalization test: carrier traffic and Qatar and UAE cargo loadings recover together for several weeks.",
+        "citationUrls": [
+          "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary",
+          "https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/"
+        ]
+      },
+      {
+        "text": "Damaged liquefaction trains return to production and the IEA cuts its cumulative loss estimate.",
+        "citationUrls": [
+          "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary",
+          "https://www.eia.gov/todayinenergy/detail.php?id=67484"
+        ]
+      }
+    ],
+    "evidenceSnapshotHash": "9bbad439954b3abffedcbba38e61648840e83b9548e09978fa018df74178fb8b",
+    "reviewedAt": "2026-07-07T13:00:00.000Z"
+  },
+  "stories": [
+    {
+      "id": "hormuz-lng-normalization",
+      "title": "Shipping is recovering faster than LNG supply",
+      "summary": "From March through June, Qatar and UAE loadings were about 35 bcm lower than a year earlier. Production elsewhere was about 27 bcm higher, offsetting roughly three quarters of the decline, but global LNG output was still about 4% lower year on year.",
+      "evidenceCount": 3,
+      "sourceCount": 3,
+      "sourceFamilyCount": 2,
+      "independentFamilyCount": 2,
+      "echoCount": 0,
+      "confidence": 0.8,
+      "changedAt": "2026-07-07T10:00:00.000Z",
+      "evidence": [
+        {
+          "accessClass": "public",
+          "independent": true,
+          "lineageRelation": "origin",
+          "evidenceFamily": "iea.org",
+          "source": "International Energy Agency",
+          "title": "Gas Market Report, Q3-2026",
+          "url": "https://www.iea.org/reports/gas-market-report-q3-2026/executive-summary",
+          "excerpt": "From March through June, Qatar and UAE LNG loadings were about 35 bcm lower than a year earlier, production elsewhere was about 27 bcm higher, and global LNG production was still about 4% lower year on year."
+        },
+        {
+          "accessClass": "public",
+          "independent": true,
+          "lineageRelation": "independent",
+          "evidenceFamily": "eia.gov",
+          "source": "U.S. Energy Information Administration",
+          "title": "U.S. natural gas exports to grow nearly 30% by 2027 as LNG facilities ramp up",
+          "url": "https://www.eia.gov/todayinenergy/detail.php?id=67484",
+          "publishedAt": "2026-04-16T00:00:00.000Z",
+          "excerpt": "Damage to two Ras Laffan liquefaction trains removed 17% of Qatar's export capacity; QatarEnergy estimated repairs could take up to five years."
+        },
+        {
+          "accessClass": "public",
+          "independent": false,
+          "lineageRelation": "same-family",
+          "evidenceFamily": "eia.gov",
+          "source": "U.S. Energy Information Administration",
+          "title": "World Oil Transit Chokepoints",
+          "url": "https://www.eia.gov/international/content/analysis/special_topics/World_Oil_Transit_Chokepoints/",
+          "publishedAt": "2026-03-03T00:00:00.000Z",
+          "excerpt": "Hormuz carried 20.9 million barrels per day of oil and 11.4 billion cubic feet per day of LNG in the first half of 2025; bypass capacity was much smaller."
+        }
+      ]
+    }
+  ]
+}

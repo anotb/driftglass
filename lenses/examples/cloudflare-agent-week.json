@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema.json",
+  "driftglassLens": "1",
+  "id": "cloudflare-agent-week-community",
+  "name": "Cloudflare Agent Week",
+  "description": "Official launches, package releases, implementation chatter, and a standing Mission for practical experiments.",
+  "author": "Driftglass contributors",
+  "category": "Agent infrastructure",
+  "icon": "\u26a1",
+  "interestTerms": [
+    "Kitesurf",
+    "Cloudflare Computer",
+    "Cloudflare Computer",
+    "Agents SDK",
+    "MCP",
+    "AI Search",
+    "WebMCP"
+  ],
+  "sources": [
+    {
+      "id": "lens-cloudflare-blog",
+      "name": "Cloudflare Agent Week posts",
+      "kind": "web_feed",
+      "config": {
+        "url": "https://blog.cloudflare.com/tag/agents-week/",
+        "renderStrategy": "adaptive",
+        "articleRenderStrategy": "direct",
+        "maxLinks": 30,
+        "maxArticles": 10,
+        "fetchArticles": true
+      },
+      "scheduleMinutes": 120,
+      "weight": 1.5
+    },
+    {
+      "id": "lens-cloudflare-github",
+      "name": "Cloudflare agent stack releases",
+      "kind": "github_releases",
+      "config": {
+        "repos": [
+          "cloudflare/agents",
+          "cloudflare/computer",
+          "cloudflare/playwright",
+          "cloudflare/sandbox-sdk",
+          "cloudflare/workers-sdk"
+        ],
+        "perRepo": 5,
+        "includePrereleases": true
+      },
+      "scheduleMinutes": 120,
+      "weight": 1.4
+    }
+  ],
+  "missions": [
+    {
+      "id": "mission-cloudflare-agent-week",
+      "name": "Cloudflare Agent Week adoption",
+      "question": "Which Cloudflare agent launches create a practical new workflow worth testing?",
+      "terms": [
+        "Kitesurf",
+        "Cloudflare Computer",
+        "Cloudflare Computer",
+        "Agents SDK",
+        "MCP",
+        "AI Search",
+        "WebMCP"
+      ],
+      "status": "active",
+      "priority": 1.8,
+      "cadenceMinutes": 360
+    }
+  ]
+}
